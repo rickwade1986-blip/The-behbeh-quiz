@@ -1,5 +1,5 @@
 (()=> {
-  const files=["v5-assets.js?v=5.3","v5-bank.js?v=5.3","app-v5.js?v=5.3"];
+  const files=["v5-assets.js?v=6.0","v5-bank.js?v=6.0","app-v5.js?v=6.0"];
   function load(i){
     if(i>=files.length) return;
     const s=document.createElement("script");
