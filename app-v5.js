@@ -7,6 +7,7 @@ const qs=new URLSearchParams(location.search);
 const incomingSeed=qs.get('seed');
 const incomingFrom=qs.get('from');
 const incomingScore=Number(qs.get('score')||0)||null;
+const incomingMode=qs.get('mode')||'chaos';
 const decodeCalls=s=>{try{if(!s)return[];let x=s.replace(/-/g,'+').replace(/_/g,'/');x+='='.repeat((4-x.length%4)%4);return JSON.parse(atob(x))}catch{return[]}};
 const encodeCalls=v=>btoa(JSON.stringify(v)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const incomingCalls=decodeCalls(qs.get('calls'));
@@ -31,36 +32,82 @@ function saveSeen(id){state.seen.add(id);const all=[...state.seen];if(all.length
 function setPlayer(p){state.player=p;localStorage.setItem('v5-player',p);renderHome();}
 function artFor(q){const c=(q.cat||'').toUpperCase();if(c.includes('FATS'))return A.fats_solo||A.fats;if(c.includes('DENISE'))return A.denise;if(c.includes('TAP'))return A.dad;if(c.includes('FESTIVAL'))return A.couple_fest;if(c.includes('RICK'))return A.silly_rick||A.rick_art;if(c.includes('LAURA'))return A.laura_art;if(c.includes('MUSIC'))return A.couple_art;return A.couple_real||A.couple_art}
 
+
 function renderHome(){
  clear(); const s=el('main','v5 screen home');
- const hero=el('section','homeHero');
- const art=el('img','homeArt');art.src=A.couple_art||A.couple_real||'';hero.append(art);
- const badge=el('div','homeBadge','RICK + LAURA');hero.append(badge);s.append(hero);
- const title=el('section','titleBlock');title.innerHTML='<h1>CHAOS<br><span>DECK</span></h1><p>Your actual nonsense, turned into a game.</p>';s.append(title);
- if(incomingSeed){const b=el('div','challengeNotice',`<b>${escapeHtml(incomingFrom||'Someone')} has sent you an episode.</b><span>Same questions. Same games. Their score stays hidden until the end.</span>`);s.append(b)}
- const who=el('div','playerPick');['Rick','Laura'].forEach(p=>{const b=el('button','player '+(state.player===p?'selected':''),`I'M ${p.toUpperCase()}`);b.onclick=()=>setPlayer(p);who.append(b)});s.append(who);
- const actions=el('div','homeActions');
- const play=el('button','action primaryAction','<b>PLAY CHAOS</b><span>Questions, skill games, interruptions and a random boss.</span>');play.onclick=()=>startRun(incomingSeed?'challenge':'chaos',incomingSeed||null);actions.append(play);
- if(!incomingSeed){
-  const daily=el('button','action','<b>DAILY EPISODE</b><span>One shared run for both of you today.</span>');daily.onclick=()=>startRun('daily');actions.append(daily);
-  const modes=el('button','action secondaryAction','<b>PICK A FLAVOUR</b><span>Our world, music and weirdness, or archive dive.</span>');modes.onclick=renderModes;actions.append(modes);
+ const brand=el('section','v6Brand');
+ brand.innerHTML='<div class="v6Logo">RICK &amp; LAURA <span>CHAOS QUIZ</span></div><div class="v6Tag">WEIRD QUESTIONS · STUPID GAMES · OUR WORLD</div>';
+ s.append(brand);
+
+ const hero=el('section','v6Hero');
+ const art=el('img','v6HeroArt'); art.src=A.couple_art||A.couple_real||''; hero.append(art);
+ const caption=el('div','v6HeroCaption','<b>RICK + LAURA</b><span>Not a relationship test. More like your WhatsApp archive got drunk and became a gameshow.</span>');
+ hero.append(caption); s.append(hero);
+
+ if(incomingSeed){
+  const b=el('div','challengeNotice','<b>'+escapeHtml(incomingFrom||'Someone')+' sent you a run.</b><span>Same round. Their score stays hidden until the end.</span>'); s.append(b);
+ }
+
+ const who=el('div','playerPick');
+ ['Rick','Laura'].forEach(function(p){
+   const b=el('button','player '+(state.player===p?'selected':''),"I'M "+p.toUpperCase());
+   b.onclick=function(){setPlayer(p)}; who.append(b);
+ });
+ s.append(who);
+
+ const actions=el('section','v6PrimaryActions');
+ if(incomingSeed){
+   const b=el('button','v6Action incoming','<b>PLAY THEIR RUN</b><span>Same seed. No peeking.</span>');
+   b.onclick=function(){launchMode(incomingMode,incomingSeed)}; actions.append(b);
+ } else {
+   const quick=el('button','v6Action quick','<b>QUICK QUIZ</b><span>10 questions. No microgames. Just play.</span>');
+   quick.onclick=function(){startQuiz('mixed')}; actions.append(quick);
+   const chaos=el('button','v6Action chaos','<b>CHAOS DECK</b><span>Questions + skill games + interruptions + a boss.</span>');
+   chaos.onclick=function(){startRun('chaos')}; actions.append(chaos);
+   const challenge=el('button','v6Action challenge','<b>CHALLENGE MODE</b><span>Play a quiz, then send Laura the exact same round.</span>');
+   challenge.onclick=function(){startQuiz('mixed')}; actions.append(challenge);
+   const daily=el('button','v6Action daily','<b>DAILY ROUND</b><span>One shared 10-question episode today.</span>');
+   daily.onclick=function(){startQuiz('mixed',todaySeed())}; actions.append(daily);
  }
  s.append(actions);
- const strip=el('div','loreStrip','<span>TAP O\'CLOCK</span><i></i><span>43 MINNIES</span><i></i><span>WEALTHY LITTLE PIGS</span><i></i><span>SILLY BULLSHIT BITCH</span>');s.append(strip);
+
+ if(!incomingSeed){
+   s.append(el('div','v6SectionHead','<b>PICK A MODE</b><span>Different flavours. Same questionable household.</span>'));
+   const grid=el('div','v6ModeGrid');
+   const modes=[
+    ['ourworld','US','Your story, people, places and shared lore.',A.couple_real],
+    ['music','MUSIC','Hip-hop, metal, music history and your rabbit holes.',A.rick_art],
+    ['weird','WEIRD SHIT','Odd facts actually worth arguing about.',A.silly_rick],
+    ['history','HISTORY','Ridiculous real events and human nonsense.',A.couple_fest],
+    ['animals','ANIMALS','The animal kingdom behaving appallingly.',A.couple_art],
+    ['psych','PSYCHOLOGY','Brains, behaviour and why humans are strange.',A.laura_art],
+    ['food','FOOD + DRINK','Greggs, booze, food science and pub nonsense.',A.denise],
+    ['timeline','TIMELINE PANIC','What happened first? The archive fights back.',A.couple_real],
+    ['tap','TAP + FRIENDS','Dad, Denise, Tap lore and the supporting cast.',A.dad],
+    ['fats','FATS FILES','A dedicated special round for one chaotic man.',A.fats_solo||A.fats],
+    ['archive','ARCHIVE DIVE','Real chat moments without making everything Who Said It.',A.couple_fest],
+    ['random','RANDOM AF','Anything goes. No coherent educational objective.',A.silly_rick]
+   ];
+   modes.forEach(function(m){
+      const b=el('button','v6ModeCard');
+      if(m[3]){const im=el('img','v6ModeArt');im.src=m[3];b.append(im)}
+      b.append(el('div','v6ModeShade'));
+      b.append(el('div','v6ModeCopy','<b>'+m[1]+'</b><span>'+m[2]+'</span>'));
+      b.onclick=function(){startQuiz(m[0])};
+      grid.append(b);
+   });
+   s.append(grid);
+ }
+ s.append(el('div','v6Footer','TAP O’CLOCK · 43 MINNIES · WEALTHY LITTLE PIGS · ALL IS WORKABLE'));
  root.append(s);
 }
 
-function renderModes(){
- clear();const s=el('main','v5 screen');s.append(topBar('CHOOSE A FLAVOUR',renderHome));
- const h=el('div','modeIntro','<h2>Pick your particular flavour of bullshit.</h2><p>The game still interrupts you with skill rounds. These just tilt the questions.</p>');s.append(h);
- const modes=[
-  ['ourworld','OUR WORLD','People, places, chat lore and things that genuinely happened.',A.couple_real],
-  ['music','MUSIC + CULTURE','Hip-hop, metal, odd music history and your own music rabbit holes.',A.couple_art],
-  ['weird','WEIRD SHIT','Psychology, animals, history and facts worth actually arguing about.',A.silly_rick],
-  ['archive','ARCHIVE DIVE','A smaller dose of “what actually came next?” from the chat.',A.couple_fest]
- ];
- const grid=el('div','modeGrid');
- modes.forEach(([id,name,desc,img])=>{const b=el('button','modeCard');if(img){const im=el('img','modeArt');im.src=img;b.append(im)}const tx=el('div','modeCopy',`<b>${name}</b><span>${desc}</span>`);b.append(tx);b.onclick=()=>startRun(id);grid.append(b)});s.append(grid);root.append(s);
+function renderModes(){ renderHome(); }
+
+function launchMode(mode,seed){
+ if(String(mode).indexOf('quiz:')===0) return startQuiz(String(mode).slice(5),seed);
+ if(mode==='dailyquiz') return startQuiz('mixed',seed||todaySeed());
+ return startRun(mode==='challenge'?'chaos':mode,seed);
 }
 
 function topBar(label,onBack){const d=el('div','topbar');const b=el('button','backBtn','BACK');b.onclick=onBack;d.append(b);const t=el('div','topTitle',label);d.append(t);const sc=el('div','topScore',state.score.toLocaleString());d.append(sc);return d}
@@ -99,6 +146,45 @@ function chooseQuestions(mode,count,r){
  else if(mode==='archive')q=[...archive.slice(0,Math.ceil(count*.65)),...personal.slice(0,Math.floor(count*.35))].slice(0,count);
  else q=[...personal.slice(0,Math.ceil(count*.65)),...general.slice(0,Math.floor(count*.35))].slice(0,count);
  return shuffle(q,r);
+}
+
+
+const QUIZ_MODES={
+ mixed:function(q){return true},
+ ourworld:function(q){return /OUR WORLD|ORIGIN STORY|FIRST WEEK|LAURA LORE|RICK LORE|FESTIVAL LORE|HOLIDAY ECONOMICS|RANDOM LORE/.test(q.cat||'')},
+ music:function(q){return /MUSIC/.test(q.cat||'')},
+ weird:function(q){return /WEIRD WORLD|LANGUAGE|GYM SCIENCE/.test(q.cat||'')},
+ history:function(q){return /HISTORY/.test(q.cat||'')},
+ animals:function(q){return /ANIMAL/.test(q.cat||'')},
+ psych:function(q){return /PSYCHOLOGY/.test(q.cat||'')},
+ food:function(q){return /FOOD|DRINK|HOLIDAY ECONOMICS/.test(q.cat||'')},
+ timeline:function(q){return /TIMELINE PANIC/.test(q.cat||'')},
+ tap:function(q){return /TAP LORE|DENISE FILES/.test(q.cat||'')},
+ fats:function(q){return /FATS FILES/.test(q.cat||'')},
+ archive:function(q){return /ARCHIVE DIVE/.test(q.cat||'')},
+ random:function(q){return true}
+};
+function quizPool(mode,r){
+ const all=[].concat(BANK.personal||[],BANK.general||[],BANK.archive||[]);
+ const fn=QUIZ_MODES[mode]||QUIZ_MODES.mixed;
+ let pool=shuffle(all.filter(fn),r);
+ const unseen=pool.filter(function(q){return !state.seen.has(q.id)});
+ pool=unseen.concat(pool.filter(function(q){return state.seen.has(q.id)}));
+ if(pool.length<10){
+   const extras=shuffle(all.filter(function(q){return !pool.some(function(x){return x.id===q.id})}),r);
+   pool=pool.concat(extras);
+ }
+ return pool;
+}
+function startQuiz(mode,providedSeed){
+ mode=mode||'mixed';
+ state.mode='quiz:'+mode;
+ state.seed=providedSeed||(mode+'-'+Date.now().toString(36));
+ state.rand=rng(state.seed); state.score=0; state.streak=0; state.best=0; state.correct=0; state.microScore=0; state.bossScore=0; state.index=0; state.started=Date.now(); state.calls=[]; state.boss=null;
+ const questions=quizPool(mode,state.rand).slice(0,10);
+ state.questionTotal=questions.length;
+ state.events=questions.map(function(q){return {kind:'question',data:q}});
+ renderEvent();
 }
 
 function startRun(mode,providedSeed){
@@ -262,7 +348,7 @@ function renderResult(){
  const again=el('button','shareBtn secondary','PLAY ANOTHER');again.onclick=()=>{history.replaceState({},'',location.pathname);state.challenger=null;state.challengerScore=null;renderHome()};panel.append(again);s.append(panel);root.append(s)
 }
 function verdict(){if(state.score>1700)return 'DISGUSTINGLY COMPETENT';if(state.score>1300)return 'CHAOS PROFESSIONAL';if(state.score>900)return 'VERY WORKABLE';return 'SILLY BULLSHIT PERFORMANCE'}
-async function shareChallenge(){const u=new URL(location.href);u.search='';u.searchParams.set('seed',state.seed);u.searchParams.set('from',state.player);u.searchParams.set('score',String(state.score));u.searchParams.set('calls',encodeCalls(state.calls));const txt=`I scored ${state.score} on Chaos Deck. Same run. Your turn.`;try{if(navigator.share)await navigator.share({title:'Chaos Deck',text:txt,url:u.toString()});else{await navigator.clipboard.writeText(u.toString());alert('Challenge link copied.')}}catch{}}
+async function shareChallenge(){const u=new URL(location.href);u.search='';u.searchParams.set('seed',state.seed);u.searchParams.set('from',state.player);u.searchParams.set('score',String(state.score));u.searchParams.set('mode',state.mode);u.searchParams.set('calls',encodeCalls(state.calls));const txt='I scored '+state.score+'. Same run. Your turn.';try{if(navigator.share)await navigator.share({title:'Chaos Deck',text:txt,url:u.toString()});else{await navigator.clipboard.writeText(u.toString());alert('Challenge link copied.')}}catch{}}
 
 renderHome();
 })();
