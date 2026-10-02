@@ -74,7 +74,13 @@ function questionPool(cat){
  }
  return p;
 }
-function pickQuestions(cat,count,r){let pool=shuffle(questionPool(cat),r);if(pool.length<count){const ids=new Set(pool.map(q=>q.id));const extra=shuffle([...CURATED,...OLD_NORMAL].filter(q=>!ids.has(q.id)),r);pool=pool.concat(extra)}return pool.slice(0,count)}
+function pickQuestions(cat,count,r){
+ const primary=shuffle(QUALITY.filter(q=>!cat||q.cat===cat),r);
+ const used=new Set(primary.map(q=>q.id));
+ const secondary=shuffle([...CURATED,...OLD_NORMAL].filter(q=>(!cat||q.cat===cat)&&!used.has(q.id)),r);
+ const takePrimary=cat?Math.min(primary.length,Math.max(6,Math.ceil(count*.7))):Math.min(primary.length,count);
+ return [...primary.slice(0,takePrimary),...secondary.slice(0,count-takePrimary)];
+}
 function eventProgress(){return state.events.length?state.i/state.events.length:0}
 function vibrate(v){try{navigator.vibrate&&navigator.vibrate(v)}catch{}}
 
@@ -119,13 +125,19 @@ function renderCategories(){
 
 function reset(mode,seed){state.mode=mode;state.seed=seed||`${mode}-${Date.now().toString(36)}`;state.rand=rng(state.seed);state.events=[];state.i=0;state.score=0;state.correct=0;state.streak=0;state.best=0;state.mini=0;state.started=Date.now()}
 function startQuiz(cat,count=10,seed=null,challenge=false){reset('quiz:'+(cat||'mixed'),seed);state.challenge=!!challenge;state.events=pickQuestions(cat,count,state.rand).map(q=>({kind:'q',q}));renderEvent()}
-function startEpisode(){reset('episode');const q=pickQuestions(null,7,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','memory'],state.rand).slice(0,3),f=shuffle(FINISH,state.rand)[0],c=shuffle(CALLS,state.rand)[0];state.events=[{kind:'q',q:q[0]},{kind:'mini',id:m[0]},{kind:'q',q:q[1]},{kind:'finish',q:f},{kind:'q',q:q[2]},{kind:'mini',id:m[1]},{kind:'call',q:c},{kind:'q',q:q[3]},{kind:'fatsInterrupt'},{kind:'q',q:q[4]},{kind:'mini',id:m[2]},{kind:'q',q:q[5]},{kind:'q',q:q[6]}];renderEvent()}
-function startChaos(){reset('chaos');const q=pickQuestions(null,3,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','memory'],state.rand).slice(0,5),f=shuffle(FINISH,state.rand)[0],c=shuffle(CALLS,state.rand)[0];state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'call',q:c},{kind:'mini',id:m[1]},{kind:'fatsInterrupt'},{kind:'mini',id:m[2]},{kind:'q',q:q[1]},{kind:'finish',q:f},{kind:'mini',id:m[3]},{kind:'q',q:q[2]},{kind:'mini',id:m[4]}];renderEvent()}
+function startEpisode(seed=null){reset('episode',seed);const q=pickQuestions(null,7,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','memory'],state.rand).slice(0,3),f=shuffle(FINISH,state.rand)[0],c=shuffle(CALLS,state.rand)[0];state.events=[{kind:'q',q:q[0]},{kind:'mini',id:m[0]},{kind:'q',q:q[1]},{kind:'finish',q:f},{kind:'q',q:q[2]},{kind:'mini',id:m[1]},{kind:'call',q:c},{kind:'q',q:q[3]},{kind:'fatsInterrupt'},{kind:'q',q:q[4]},{kind:'mini',id:m[2]},{kind:'q',q:q[5]},{kind:'q',q:q[6]}];renderEvent()}
+function startChaos(seed=null){reset('chaos',seed);const q=pickQuestions(null,3,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','memory'],state.rand).slice(0,5),f=shuffle(FINISH,state.rand)[0],c=shuffle(CALLS,state.rand)[0];state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'call',q:c},{kind:'mini',id:m[1]},{kind:'fatsInterrupt'},{kind:'mini',id:m[2]},{kind:'q',q:q[1]},{kind:'finish',q:f},{kind:'mini',id:m[3]},{kind:'q',q:q[2]},{kind:'mini',id:m[4]}];renderEvent()}
 function startFinish(){reset('finish');state.events=shuffle(FINISH,state.rand).map(q=>({kind:'finish',q}));renderEvent()}
 function startCalls(){reset('calls');state.events=shuffle(CALLS,state.rand).slice(0,6).map(q=>({kind:'call',q}));renderEvent()}
 function startArchive(){reset('archive');const p=shuffle(OLD.archive||[],state.rand).filter(x=>x&&x.q&&x.o).slice(0,10).map((x,i)=>({id:x.id||'a'+i,cat:'ARCHIVE DIVE',q:x.q,o:x.o,a:x.a||0,r:x.r||'Pulled from the actual chat archive.'}));state.events=p.map(q=>({kind:'q',q}));renderEvent()}
 function startFatsBoss(){reset('fats');state.events=[{kind:'fats'}];renderEvent()}
-function launchIncoming(){if(!incomingMode)return startQuiz(null,10,incomingSeed);if(incomingMode.startsWith('quiz:'))return startQuiz(incomingMode.split(':')[1]==='mixed'?null:incomingMode.split(':')[1],10,incomingSeed);if(incomingMode==='episode'){reset('episode',incomingSeed);const q=pickQuestions(null,9,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap'],state.rand).slice(0,3);state.events=[{kind:'q',q:q[0]},{kind:'q',q:q[1]},{kind:'mini',id:m[0]},{kind:'q',q:q[2]},{kind:'q',q:q[3]},{kind:'mini',id:m[1]},{kind:'q',q:q[4]},{kind:'q',q:q[5]},{kind:'q',q:q[6]},{kind:'mini',id:m[2]},{kind:'q',q:q[7]},{kind:'q',q:q[8]}];return renderEvent()}if(incomingMode==='chaos'){reset('chaos',incomingSeed);const q=pickQuestions(null,3,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','slugs','memory'],state.rand).slice(0,6);state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'mini',id:m[1]},{kind:'mini',id:m[2]},{kind:'q',q:q[1]},{kind:'mini',id:m[3]},{kind:'mini',id:m[4]},{kind:'q',q:q[2]},{kind:'mini',id:m[5]}];return renderEvent()}startQuiz(null,10,incomingSeed)}
+function launchIncoming(){
+ if(!incomingMode)return startQuiz(null,10,incomingSeed);
+ if(incomingMode.startsWith('quiz:'))return startQuiz(incomingMode.split(':')[1]==='mixed'?null:incomingMode.split(':')[1],10,incomingSeed);
+ if(incomingMode==='episode')return startEpisode(incomingSeed);
+ if(incomingMode==='chaos')return startChaos(incomingSeed);
+ return startQuiz(null,10,incomingSeed);
+}
 
 function renderEvent(){if(state.i>=state.events.length)return renderResults();const e=state.events[state.i];if(e.kind==='q')return renderQuestion(e.q);if(e.kind==='finish')return renderQuestion({...e.q,id:'f'+state.i,cat:'FINISH THE MESSAGE'});if(e.kind==='call')return renderCall(e.q);if(e.kind==='mini')return runMini(e.id);if(e.kind==='fatsInterrupt')return runFatsInterrupt();if(e.kind==='fats')return runFatsBoss()}
 function next(points=0){state.score+=points;state.i++;renderEvent()}
@@ -216,7 +228,7 @@ function miniTap(){
  btn.onpointerdown=e=>{e.preventDefault();down=true;handle.classList.add('open');stream.classList.add('on');btn.setPointerCapture&&btn.setPointerCapture(e.pointerId)};
  const release=()=>{if(!down||done)return;down=false;handle.classList.remove('open');stream.classList.remove('on');if(fill>.25){done=true;const effective=fill+head*.45,d=Math.abs(effective-.79);const pts=Math.max(35,300-Math.round(d*600));setTimeout(()=>miniResult(pts,d<.045?'TAP O’CLOCK PERFECT':head>.22?'FROTHY BUSINESS':'PINT ACCEPTED',d<.045?'Dad has nothing to complain about.':'It is still recognisably a Swan Blonde.'),400)}};
  btn.onpointerup=btn.onpointercancel=release;
- function tick(t){if(done)return;const dt=Math.min(.04,(t-last)/1000);last=t;if(down){fill=clamp(fill+dt*.17,0,1.05);head=clamp(head+dt*(fill>.55?.055:.02),0,.35)}beer.style.height=(Math.min(fill,1)*100)+'%';foam.style.height=(head*100)+'%';read.textContent=Math.round(fill*100)+'%';if(fill+head>=1.08){done=true;stream.classList.remove('on');stage.classList.add('beerSpill');setTimeout(()=>miniResult(20,'FOAM EMERGENCY','Dad wanted a pint, not a bubble bath.'),350);return}requestAnimationFrame(tick)}requestAnimationFrame(tick)
+ function tick(t){if(done)return;const dt=Math.min(.04,(t-last)/1000);last=t;if(down){fill=clamp(fill+dt*.17,0,1.05);head=clamp(head+dt*(fill>.55?.055:.02),0,.35)}beer.style.height=(Math.min(fill,1)*100)+'%';foam.style.height=(head*100)+'%';foam.style.bottom=(Math.max(0,Math.min(fill,1)-head)*100)+'%';read.textContent=Math.round(fill*100)+'%';if(fill+head>=1.08){done=true;stream.classList.remove('on');stage.classList.add('beerSpill');setTimeout(()=>miniResult(20,'FOAM EMERGENCY','Dad wanted a pint, not a bubble bath.'),350);return}requestAnimationFrame(tick)}requestAnimationFrame(tick)
 }
 
 function miniSlugs(){
