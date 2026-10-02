@@ -1,1 +1,7 @@
-(async()=>{try{const parts=["bundle.00.part","bundle.01.part","bundle.02.part","bundle.03.part","bundle.04.part","bundle.05.part","bundle.06.part","bundle.07.part"];const b64=(await Promise.all(parts.map(p=>fetch(p,{cache:"no-store"}).then(r=>{if(!r.ok)throw Error(p);return r.text()})))).join("").trim();const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));const code=await new Response(stream).text();(0,eval)(code)}catch(e){console.error(e);document.getElementById("app").innerHTML='<div style="min-height:100vh;padding:30px;background:#0b0910;color:#fff;font-family:system-ui"><h1>Behbeh, the game fell over 😭</h1><p>Refresh once. If it still fails, screenshot this for Rick.</p></div>'}})();
+(async()=>{try{
+  const code=await fetch("app-v4-bundle.js",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("V4 bundle failed to load");return r.text()});
+  (0,eval)(code);
+}catch(e){
+  console.error(e);
+  document.getElementById("app").innerHTML='<div style="min-height:100vh;display:grid;place-items:center;padding:30px;background:#09080d;color:#fff;font-family:system-ui;text-align:center"><div><h1>Behbeh, it fell over 😭</h1><p>Refresh once. If it still fails, screenshot this.</p></div></div>';
+}})();
