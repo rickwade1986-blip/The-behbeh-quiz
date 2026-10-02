@@ -1,1 +1,9 @@
-(async()=>{try{const parts=["bundle.00.part","bundle.01.part","bundle.02.part","bundle.03.part","bundle.04.part","bundle.05.part","bundle.06.part","bundle.07.part"];const b64=(await Promise.all(parts.map(p=>fetch(p,{cache:"no-store"}).then(r=>{if(!r.ok)throw Error(p);return r.text()})))).join("").trim();const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));const code=await new Response(stream).text();(0,eval)(code)}catch(e){console.error(e);document.getElementById("app").innerHTML='<div style="min-height:100vh;padding:30px;background:#0b0910;color:#fff;font-family:system-ui"><h1>Behbeh, the game fell over 😭</h1><p>Refresh once. If it still fails, screenshot this for Rick.</p></div>'}})();
+(async()=>{try{
+const names=["v4.00.part","v4.01.part","v4.02.part","v4.03.part","v4.04.part","v4.05.part","v4.06.part","v4.07.part","v4.08.part","v4.09.part"];
+const parts=await Promise.all(names.map(n=>fetch(n,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(n);return r.text()})));
+const b64=parts.join("").trim();
+const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+const code=await new Response(stream).text();
+(0,eval)(code);
+}catch(e){console.error(e);document.getElementById("app").innerHTML='<div style="min-height:100vh;display:grid;place-items:center;padding:30px;background:#09080d;color:white;font-family:system-ui;text-align:center"><div><h1>Behbeh, it fell over 😭</h1><p>Refresh once. If it still fails, screenshot this.</p></div></div>'}})();
