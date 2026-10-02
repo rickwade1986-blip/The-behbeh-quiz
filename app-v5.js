@@ -7,6 +7,9 @@ const qs=new URLSearchParams(location.search);
 const incomingSeed=qs.get('seed');
 const incomingFrom=qs.get('from');
 const incomingScore=Number(qs.get('score')||0)||null;
+const decodeCalls=s=>{try{if(!s)return[];let x=s.replace(/-/g,'+').replace(/_/g,'/');x+='='.repeat((4-x.length%4)%4);return JSON.parse(atob(x))}catch{return[]}};
+const encodeCalls=v=>btoa(JSON.stringify(v)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const incomingCalls=decodeCalls(qs.get('calls'));
 const other=p=>p==='Rick'?'Laura':'Rick';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
@@ -21,7 +24,7 @@ const state={
  player:localStorage.getItem('v5-player')|| (incomingFrom?other(incomingFrom):'Rick'),
  seed:'', mode:'chaos', rand:null, events:[], index:0, score:0, streak:0,best:0, correct:0,
  microScore:0, bossScore:0, started:0, seen:new Set(JSON.parse(localStorage.getItem('v5-seen')||'[]')),
- boss:null, challenger:incomingFrom||null, challengerScore:incomingScore
+ boss:null, challenger:incomingFrom||null, challengerScore:incomingScore, calls:[], incomingCalls, questionTotal:0
 };
 
 function saveSeen(id){state.seen.add(id);const all=[...state.seen];if(all.length>500)all.splice(0,all.length-500);localStorage.setItem('v5-seen',JSON.stringify(all));}
@@ -65,6 +68,20 @@ function todaySeed(){const d=new Date();return `daily-${d.getFullYear()}-${d.get
 
 const micros=['m6','savvy','greggs','minnies','rap','tapshift','tent'];
 const bosses=['fats','kendal','tapboss'];
+const CALLOUTS=[
+ {id:'call-sixhours',q:'A quick one turns into six hours. Who is most likely to be responsible?',note:'There is no correct answer. There may be evidence.'},
+ {id:'call-playlist',q:'Who is most likely to lose three hours building a playlist and genuinely call it productive?',note:'Choose first. Defend yourself later.'},
+ {id:'call-stranger',q:'Who is more likely to leave a transport disaster with a brand-new friend?',note:'British infrastructure is merely the setting.'},
+ {id:'call-gymdrink',q:'Who is more likely to propose the gym and a drinking session in the same sentence?',note:'A complete wellness programme.'},
+ {id:'call-impulse',q:'Who is more likely to turn “fancy a quick drink?” into an entire new chapter of life?',note:'The archive has opinions. You do not get to see them.'},
+ {id:'call-music',q:'Who is more likely to derail bedtime with a completely unnecessary music rabbit hole?',note:'One song is never one song.'},
+ {id:'call-pub',q:'Who is more likely to say they are leaving Tap and still be there ninety minutes later?',note:'This question may be legally impossible to answer.'},
+ {id:'call-festival',q:'Who becomes more dangerous when given a festival wristband and no immediate responsibilities?',note:'Answer independently. Compare at the end.'},
+ {id:'call-plan',q:'Who is more likely to make a very sensible plan and then immediately improve it into nonsense?',note:'“Improve” is doing a lot of work here.'},
+ {id:'call-coffee',q:'Who is more likely to be awake at a stupid hour doing something that absolutely could wait until tomorrow?',note:'This is broader than coffee. Deliberately.'},
+ {id:'call-friend',q:'Who is more likely to adopt a random person into the social circle within twenty minutes?',note:'Some people network. Some people collect humans.'},
+ {id:'call-holiday',q:'Who is more likely to upgrade a perfectly reasonable holiday until you are living like wealthy little pigs?',note:'No budgeting app is safe.'}
+];
 function chooseQuestions(mode,count,r){
  let personal=shuffle(BANK.personal,r),general=shuffle(BANK.general,r),archive=shuffle(BANK.archive,r);
  if(mode!=='daily'&&mode!=='challenge'){
@@ -87,20 +104,23 @@ function chooseQuestions(mode,count,r){
 function startRun(mode,providedSeed){
  state.mode=mode;state.seed=providedSeed||(mode==='daily'?todaySeed():`${mode}-${Date.now().toString(36)}`);state.rand=rng(state.seed);
  state.score=0;state.streak=0;state.best=0;state.correct=0;state.microScore=0;state.bossScore=0;state.index=0;state.started=Date.now();
- const questions=chooseQuestions(mode,6,state.rand);
+ state.calls=[];
+ const questions=chooseQuestions(mode,5,state.rand); state.questionTotal=questions.length;
  const mg=shuffle(micros,state.rand).slice(0,4);
+ const calls=shuffle(CALLOUTS,state.rand).slice(0,2);
  state.boss=shuffle(bosses,state.rand)[0];
  state.events=[
    {kind:'question',data:questions[0]},
    {kind:'micro',data:mg[0]},
+   {kind:'versus',data:calls[0]},
    {kind:'question',data:questions[1]},
    {kind:'micro',data:mg[1]},
    {kind:'question',data:questions[2]},
-   {kind:'question',data:questions[3]},
+   {kind:'versus',data:calls[1]},
    {kind:'micro',data:mg[2]},
-   {kind:'question',data:questions[4]},
+   {kind:'question',data:questions[3]},
    {kind:'micro',data:mg[3]},
-   {kind:'question',data:questions[5]},
+   {kind:'question',data:questions[4]},
    {kind:'boss',data:state.boss}
  ];
  renderEvent();
@@ -113,6 +133,7 @@ function renderEvent(){
  if(state.index>=state.events.length)return renderResult();
  const ev=state.events[state.index];
  if(ev.kind==='question')return renderQuestion(ev.data);
+ if(ev.kind==='versus')return renderVersus(ev.data);
  if(ev.kind==='micro')return renderMicroIntro(ev.data);
  if(ev.kind==='boss')return renderBossIntro(ev.data);
 }
@@ -129,6 +150,16 @@ function renderQuestion(q){
  body.append(card);
  const answers=el('div','answerGrid');let locked=false;
  q.o.forEach((opt,i)=>{const b=el('button','answerBtn',`<span>${String.fromCharCode(65+i)}</span><b>${escapeHtml(opt)}</b>`);b.onclick=()=>{if(locked)return;locked=true;const ok=i===q.a;[...answers.children].forEach((x,j)=>{x.disabled=true;if(j===q.a)x.classList.add('correct');if(j===i&&!ok)x.classList.add('wrong')});if(ok){state.streak++;state.best=Math.max(state.best,state.streak);state.correct++;state.score+=120+state.streak*20;vibrate(25)}else{state.streak=0;vibrate([40,35,40])}saveSeen(q.id);const r=el('div','answerReveal '+(ok?'good':'bad'),`<b>${ok?'NAILED IT':'ABSOLUTE RUBBISH'}</b><p>${escapeHtml(q.r)}</p>`);body.append(r);const n=el('button','nextBtn','NEXT ROUND');n.onclick=nextEvent;body.append(n);window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})};answers.append(b)});body.append(answers);s.append(body);root.append(s);
+}
+
+
+function renderVersus(v){
+ clear();const s=el('main','v5 screen versusScreen');s.append(gameHeader('YOU TWO'));
+ const h=el('section','versusPrompt');h.innerHTML=`<div class="questionTag">CALL IT</div><h2>${escapeHtml(v.q)}</h2><p>${escapeHtml(v.note)}</p>`;s.append(h);
+ const grid=el('div','versusPeople');
+ [['Rick',A.rick_art||A.silly_rick],['Laura',A.laura_art]].forEach(([name,img])=>{const b=el('button','versusPerson');const im=el('img');im.src=img||'';b.append(im);b.append(el('b','',name.toUpperCase()));b.onclick=()=>finish(name);grid.append(b)});
+ const both=el('button','bothBtn','BOTH OF YOU');both.onclick=()=>finish('Both');s.append(grid);s.append(both);root.append(s);
+ function finish(choice){state.calls.push({id:v.id,choice});state.score+=35;vibrate(12);const prior=state.incomingCalls.find(x=>x.id===v.id);clear();const out=el('main','v5 screen versusReveal');const card=el('section','versusRevealCard');card.innerHTML=`<div class="questionTag">LOCKED IN</div><h1>${escapeHtml(choice)}</h1><p>${prior?`The other answer stays hidden until the end.`:`That answer will stay hidden if you challenge ${other(state.player)}.`}</p>`;const n=el('button','nextBtn','NEXT');n.onclick=nextEvent;card.append(n);out.append(card);root.append(out)}
 }
 
 const microMeta={
@@ -224,13 +255,14 @@ function bossTap(){
 }
 
 function renderResult(){
- clear();const s=el('main','v5 screen resultScreen');const hero=el('section','resultHero');const im=el('img');im.src=A.couple_art;hero.append(im);const stamp=el('div','resultStamp',verdict());hero.append(stamp);s.append(hero);const panel=el('section','resultPanel');panel.innerHTML=`<div class="resultLabel">FINAL DAMAGE</div><div class="finalScore">${state.score.toLocaleString()}</div><div class="resultStats"><div><span>QUESTIONS</span><b>${state.correct}/6</b></div><div><span>BEST STREAK</span><b>${state.best}</b></div><div><span>MICROGAMES</span><b>${state.microScore}</b></div><div><span>BOSS</span><b>${state.bossScore}</b></div></div>`;
+ clear();const s=el('main','v5 screen resultScreen');const hero=el('section','resultHero');const im=el('img');im.src=A.couple_art;hero.append(im);const stamp=el('div','resultStamp',verdict());hero.append(stamp);s.append(hero);const panel=el('section','resultPanel');panel.innerHTML=`<div class="resultLabel">FINAL DAMAGE</div><div class="finalScore">${state.score.toLocaleString()}</div><div class="resultStats"><div><span>QUESTIONS</span><b>${state.correct}/${state.questionTotal}</b></div><div><span>BEST STREAK</span><b>${state.best}</b></div><div><span>MICROGAMES</span><b>${state.microScore}</b></div><div><span>BOSS</span><b>${state.bossScore}</b></div></div>`;
+ if(state.incomingCalls.length){const matched=state.calls.filter(c=>{const p=state.incomingCalls.find(x=>x.id===c.id);return p&&p.choice===c.choice}).length;const cc=el('div','callMatch',`<span>COUPLE CALLS</span><b>${matched}/${state.calls.length} MATCHED</b><small>${matched===state.calls.length?'Disturbingly aligned.':matched===0?'You appear to be describing two different relationships.':'Enough agreement to remain operational.'}</small>`);panel.append(cc)}
  if(state.challengerScore!==null){const vs=el('div','versusBox',`<div><span>${escapeHtml(state.challenger||other(state.player))}</span><b>${state.challengerScore.toLocaleString()}</b></div><i>VS</i><div><span>${state.player}</span><b>${state.score.toLocaleString()}</b></div>`);panel.append(vs)}
  else{const share=el('button','shareBtn','CHALLENGE '+other(state.player).toUpperCase());share.onclick=shareChallenge;panel.append(share)}
  const again=el('button','shareBtn secondary','PLAY ANOTHER');again.onclick=()=>{history.replaceState({},'',location.pathname);state.challenger=null;state.challengerScore=null;renderHome()};panel.append(again);s.append(panel);root.append(s)
 }
 function verdict(){if(state.score>1700)return 'DISGUSTINGLY COMPETENT';if(state.score>1300)return 'CHAOS PROFESSIONAL';if(state.score>900)return 'VERY WORKABLE';return 'SILLY BULLSHIT PERFORMANCE'}
-async function shareChallenge(){const u=new URL(location.href);u.search='';u.searchParams.set('seed',state.seed);u.searchParams.set('from',state.player);u.searchParams.set('score',String(state.score));const txt=`I scored ${state.score} on Chaos Deck. Same run. Your turn.`;try{if(navigator.share)await navigator.share({title:'Chaos Deck',text:txt,url:u.toString()});else{await navigator.clipboard.writeText(u.toString());alert('Challenge link copied.')}}catch{}}
+async function shareChallenge(){const u=new URL(location.href);u.search='';u.searchParams.set('seed',state.seed);u.searchParams.set('from',state.player);u.searchParams.set('score',String(state.score));u.searchParams.set('calls',encodeCalls(state.calls));const txt=`I scored ${state.score} on Chaos Deck. Same run. Your turn.`;try{if(navigator.share)await navigator.share({title:'Chaos Deck',text:txt,url:u.toString()});else{await navigator.clipboard.writeText(u.toString());alert('Challenge link copied.')}}catch{}}
 
 renderHome();
 })();
