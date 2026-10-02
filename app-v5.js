@@ -26,7 +26,7 @@ const state={
 
 function saveSeen(id){state.seen.add(id);const all=[...state.seen];if(all.length>500)all.splice(0,all.length-500);localStorage.setItem('v5-seen',JSON.stringify(all));}
 function setPlayer(p){state.player=p;localStorage.setItem('v5-player',p);renderHome();}
-function artFor(q){const c=(q.cat||'').toUpperCase();if(c.includes('FATS'))return A.fats;if(c.includes('DENISE'))return A.denise;if(c.includes('TAP'))return A.dad;if(c.includes('FESTIVAL'))return A.couple_fest;if(c.includes('RICK'))return A.silly_rick||A.rick_art;if(c.includes('LAURA'))return A.laura_art;if(c.includes('MUSIC'))return A.couple_art;return A.couple_real||A.couple_art}
+function artFor(q){const c=(q.cat||'').toUpperCase();if(c.includes('FATS'))return A.fats_solo||A.fats;if(c.includes('DENISE'))return A.denise;if(c.includes('TAP'))return A.dad;if(c.includes('FESTIVAL'))return A.couple_fest;if(c.includes('RICK'))return A.silly_rick||A.rick_art;if(c.includes('LAURA'))return A.laura_art;if(c.includes('MUSIC'))return A.couple_art;return A.couple_real||A.couple_art}
 
 function renderHome(){
  clear(); const s=el('main','v5 screen home');
@@ -194,9 +194,9 @@ function microTent(){
 }
 
 const bossNames={fats:'FATS: PRESTON INCIDENT',kendal:'KENDAL CALLING',tapboss:'TAP O’CLOCK'};
-function renderBossIntro(id){clear();const s=el('main','v5 screen bossIntro');const art=el('img','bossIntroArt');art.src=id==='fats'?A.fats:id==='kendal'?A.couple_fest:A.dad;s.append(art);const tx=el('div','bossIntroCopy');tx.innerHTML=`<div class="bossKicker">BOSS ROUND</div><h1>${bossNames[id]}</h1><p>${id==='fats'?'Three separate Fats problems. None involve a roast.':id==='kendal'?'Survive the festival logistics that somehow became a lifestyle.':'It is 4pm. Dad has arrived. Denise is working. Do not embarrass the family.'}</p>`;const b=el('button','startBtn','START BOSS');b.onclick=()=>runBoss(id);tx.append(b);s.append(tx);root.append(s)}
+function renderBossIntro(id){clear();const s=el('main','v5 screen bossIntro');const art=el('img','bossIntroArt');art.src=id==='fats'?(A.fats_solo||A.fats):id==='kendal'?A.couple_fest:A.dad;s.append(art);const tx=el('div','bossIntroCopy');tx.innerHTML=`<div class="bossKicker">BOSS ROUND</div><h1>${bossNames[id]}</h1><p>${id==='fats'?'Three separate Fats problems. None involve a roast.':id==='kendal'?'Survive the festival logistics that somehow became a lifestyle.':'It is 4pm. Dad has arrived. Denise is working. Do not embarrass the family.'}</p>`;const b=el('button','startBtn','START BOSS');b.onclick=()=>runBoss(id);tx.append(b);s.append(tx);root.append(s)}
 function runBoss(id){if(id==='fats')bossFats();else if(id==='kendal')bossKendal();else bossTap()}
-function bossResult(points,title,copy){state.bossScore+=points;state.score+=points;clear();const s=el('main','v5 screen bossResult');const art=el('img','bossResultArt');art.src=state.boss==='fats'?A.fats:state.boss==='kendal'?A.couple_fest:A.dad;s.append(art);const c=el('div','bossResultCard',`<div class="bossKicker">BOSS CLEARED</div><h1>${escapeHtml(title)}</h1><div class="bossPts">+${points}</div><p>${escapeHtml(copy)}</p>`);const n=el('button','nextBtn','SHOW RESULTS');n.onclick=nextEvent;c.append(n);s.append(c);root.append(s)}
+function bossResult(points,title,copy){state.bossScore+=points;state.score+=points;clear();const s=el('main','v5 screen bossResult');const art=el('img','bossResultArt');art.src=state.boss==='fats'?(A.fats_solo||A.fats):state.boss==='kendal'?A.couple_fest:A.dad;s.append(art);const c=el('div','bossResultCard',`<div class="bossKicker">BOSS CLEARED</div><h1>${escapeHtml(title)}</h1><div class="bossPts">+${points}</div><p>${escapeHtml(copy)}</p>`);const n=el('button','nextBtn','SHOW RESULTS');n.onclick=nextEvent;c.append(n);s.append(c);root.append(s)}
 
 function bossFats(){
  // Three fast phases: train switches, location triangulation, freebies catch
