@@ -4,6 +4,7 @@ const root=document.getElementById('app');
 const ART=window.V7_ASSETS||{};
 const PEOPLE=window.V5_ASSETS||{};
 const CURATED=window.V7_CURATED||[];
+const QUALITY=window.V8_CURATED||[];
 const OLD=window.V5_BANK||{personal:[],general:[],archive:[]};
 const params=new URLSearchParams(location.search);
 const incomingSeed=params.get('seed');
@@ -62,38 +63,18 @@ function normaliseOld(){
 }
 const OLD_NORMAL=normaliseOld();
 
-const STRONG_GENERAL=new Set([
- 'g003','g004','g006','g007','g008','g009','g011','g012','g015',
- 'g023','g024','g025','g026','g027','g028','g029','g030','g031','g032','g033','g034',
- 'g041','g042','g043','g044','g045','g046','g048','g051','g052','g057','g060','g066','g070','g071','g072'
-]);
 function questionPool(cat){
+ let p=[...QUALITY,...CURATED];
  if(cat){
-  let p=CURATED.filter(q=>q.cat===cat);
-  if(p.length<10)p=[...p,...OLD_NORMAL.filter(q=>q.cat===cat)];
-  return p;
+   p=p.filter(q=>q.cat===cat);
+   if(p.length<10)p=[...p,...OLD_NORMAL.filter(q=>q.cat===cat)];
+ }else{
+   const qualityFirst=[...QUALITY,...shuffle(CURATED,state.rand).slice(0,18)];
+   p=qualityFirst;
  }
- return CURATED;
+ return p;
 }
-function pickQuestions(cat,count,r){
- if(cat){
-  let pool=shuffle(questionPool(cat),r);
-  if(pool.length<count){
-   const ids=new Set(pool.map(q=>q.id));
-   pool=pool.concat(shuffle([...CURATED,...OLD_NORMAL].filter(q=>!ids.has(q.id)),r));
-  }
-  return pool.slice(0,count);
- }
- const personal=shuffle(CURATED.filter(q=>String(q.id||'').startsWith('us')),r);
- const strange=shuffle(CURATED.filter(q=>STRONG_GENERAL.has(q.id)),r);
- const personalCount=Math.min(personal.length,Math.max(1,Math.ceil(count*.7)));
- let out=[...personal.slice(0,personalCount),...strange.slice(0,Math.max(0,count-personalCount))];
- if(out.length<count){
-  const ids=new Set(out.map(q=>q.id));
-  out=out.concat(shuffle(CURATED.filter(q=>!ids.has(q.id)),r).slice(0,count-out.length));
- }
- return shuffle(out,r).slice(0,count);
-}
+function pickQuestions(cat,count,r){let pool=shuffle(questionPool(cat),r);if(pool.length<count){const ids=new Set(pool.map(q=>q.id));const extra=shuffle([...CURATED,...OLD_NORMAL].filter(q=>!ids.has(q.id)),r);pool=pool.concat(extra)}return pool.slice(0,count)}
 function eventProgress(){return state.events.length?state.i/state.events.length:0}
 function vibrate(v){try{navigator.vibrate&&navigator.vibrate(v)}catch{}}
 
@@ -124,8 +105,7 @@ function renderHome(){
    ['cats','CATEGORIES','Pick an obsession.','categoryBtn',renderCategories]
   ];
   buttons.forEach(x=>{const b=$('button','menuBtn '+x[3],`<b>${x[1]}</b><span>${x[2]}</span>`);b.onclick=x[4];s.append(b)});
-  const specials=$('div','specialStrip');
-  [['WHO IS MORE LIKELY',()=>startCalls()],['FINISH THE MESSAGE',()=>startFinish()],['FATS BOSS',()=>startFatsBoss()]].forEach(x=>{const b=$('button','specialBtn',x[0]);b.onclick=x[1];specials.append(b)});s.append(specials);
+  s.append($('div','homeWhisper','WHO IS MORE LIKELY, FINISH THE MESSAGE, FATS INCIDENTS AND OTHER NONSENSE NOW APPEAR INSIDE THE GAME.'));
  }
  root.append(s);
 }
@@ -133,31 +113,37 @@ function renderHome(){
 function renderCategories(){
  clear();const s=$('main','phone categoryScreen');s.append(header('CHOOSE A CATEGORY'));
  const grid=$('div','categoryGrid');
- const cats=[['US',ART.cat_us],['MUSIC',ART.cat_music],['TRAVEL',ART.cat_travel],['ANIMALS',ART.cat_animals],['HUMAN BODY',ART.cat_body],['PSYCHOLOGY',ART.cat_psych],['HISTORY',ART.cat_history],['FOOD + DRINK',ART.cat_food],['WEIRD SHIT',ART.cat_random],['FATS FILES',ART.cat_fats]];
- cats.forEach(([c,img])=>{const b=$('button','categoryTile');const im=$('img');im.src=img;b.append(im);b.onclick=()=>c==='FATS FILES'?startFatsBoss():startQuiz(c,10);grid.append(b)});s.append(grid);
- const more=$('div','extraModes');
- const a=$('button','extraMode','TAP + FRIENDS');a.onclick=()=>startQuiz('TAP + FRIENDS',10);more.append(a);
- const b=$('button','extraMode','ARCHIVE DIVE');b.onclick=()=>startArchive();more.append(b);
- s.append(more);root.append(s);
+ const cats=[['US',ART.cat_us],['MUSIC',ART.cat_music],['TRAVEL',ART.cat_travel],['ANIMALS',ART.cat_animals],['HUMAN BODY',ART.cat_body],['PSYCHOLOGY',ART.cat_psych],['HISTORY',ART.cat_history],['FOOD + DRINK',ART.cat_food],['WEIRD SHIT',ART.cat_random],['TAP + FRIENDS',PEOPLE.dad||ART.cat_food]];
+ cats.forEach(([c,img])=>{const b=$('button','categoryTile');const im=$('img');im.src=img;b.append(im);b.onclick=()=>startQuiz(c,10);grid.append(b)});s.append(grid);root.append(s);
 }
 
 function reset(mode,seed){state.mode=mode;state.seed=seed||`${mode}-${Date.now().toString(36)}`;state.rand=rng(state.seed);state.events=[];state.i=0;state.score=0;state.correct=0;state.streak=0;state.best=0;state.mini=0;state.started=Date.now()}
 function startQuiz(cat,count=10,seed=null,challenge=false){reset('quiz:'+(cat||'mixed'),seed);state.challenge=!!challenge;state.events=pickQuestions(cat,count,state.rand).map(q=>({kind:'q',q}));renderEvent()}
-function startEpisode(){reset('episode');const q=pickQuestions(null,9,state.rand),m=shuffle(['tap','minnies','keys','memory'],state.rand).slice(0,3);state.events=[{kind:'q',q:q[0]},{kind:'q',q:q[1]},{kind:'mini',id:m[0]},{kind:'q',q:q[2]},{kind:'q',q:q[3]},{kind:'mini',id:m[1]},{kind:'q',q:q[4]},{kind:'q',q:q[5]},{kind:'q',q:q[6]},{kind:'mini',id:m[2]},{kind:'q',q:q[7]},{kind:'q',q:q[8]}];renderEvent()}
-function startChaos(){reset('chaos');const q=pickQuestions(null,3,state.rand),m=shuffle(['tap','minnies','keys','memory'],state.rand);state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'mini',id:m[1]},{kind:'q',q:q[1]},{kind:'mini',id:m[2]},{kind:'q',q:q[2]},{kind:'mini',id:m[3]}];renderEvent()}
+function startEpisode(){reset('episode');const q=pickQuestions(null,7,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','memory'],state.rand).slice(0,3),f=shuffle(FINISH,state.rand)[0],c=shuffle(CALLS,state.rand)[0];state.events=[{kind:'q',q:q[0]},{kind:'mini',id:m[0]},{kind:'q',q:q[1]},{kind:'finish',q:f},{kind:'q',q:q[2]},{kind:'mini',id:m[1]},{kind:'call',q:c},{kind:'q',q:q[3]},{kind:'fatsInterrupt'},{kind:'q',q:q[4]},{kind:'mini',id:m[2]},{kind:'q',q:q[5]},{kind:'q',q:q[6]}];renderEvent()}
+function startChaos(){reset('chaos');const q=pickQuestions(null,3,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','memory'],state.rand).slice(0,5),f=shuffle(FINISH,state.rand)[0],c=shuffle(CALLS,state.rand)[0];state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'call',q:c},{kind:'mini',id:m[1]},{kind:'fatsInterrupt'},{kind:'mini',id:m[2]},{kind:'q',q:q[1]},{kind:'finish',q:f},{kind:'mini',id:m[3]},{kind:'q',q:q[2]},{kind:'mini',id:m[4]}];renderEvent()}
 function startFinish(){reset('finish');state.events=shuffle(FINISH,state.rand).map(q=>({kind:'finish',q}));renderEvent()}
 function startCalls(){reset('calls');state.events=shuffle(CALLS,state.rand).slice(0,6).map(q=>({kind:'call',q}));renderEvent()}
 function startArchive(){reset('archive');const p=shuffle(OLD.archive||[],state.rand).filter(x=>x&&x.q&&x.o).slice(0,10).map((x,i)=>({id:x.id||'a'+i,cat:'ARCHIVE DIVE',q:x.q,o:x.o,a:x.a||0,r:x.r||'Pulled from the actual chat archive.'}));state.events=p.map(q=>({kind:'q',q}));renderEvent()}
 function startFatsBoss(){reset('fats');state.events=[{kind:'fats'}];renderEvent()}
-function launchIncoming(){if(!incomingMode)return startQuiz(null,10,incomingSeed);if(incomingMode.startsWith('quiz:'))return startQuiz(incomingMode.split(':')[1]==='mixed'?null:incomingMode.split(':')[1],10,incomingSeed);if(incomingMode==='episode'){reset('episode',incomingSeed);const q=pickQuestions(null,9,state.rand),m=shuffle(['tap','minnies','keys','memory'],state.rand).slice(0,3);state.events=[{kind:'q',q:q[0]},{kind:'q',q:q[1]},{kind:'mini',id:m[0]},{kind:'q',q:q[2]},{kind:'q',q:q[3]},{kind:'mini',id:m[1]},{kind:'q',q:q[4]},{kind:'q',q:q[5]},{kind:'q',q:q[6]},{kind:'mini',id:m[2]},{kind:'q',q:q[7]},{kind:'q',q:q[8]}];return renderEvent()}if(incomingMode==='chaos'){reset('chaos',incomingSeed);const q=pickQuestions(null,3,state.rand),m=shuffle(['tap','minnies','keys','memory'],state.rand);state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'mini',id:m[1]},{kind:'q',q:q[1]},{kind:'mini',id:m[2]},{kind:'q',q:q[2]},{kind:'mini',id:m[3]}];return renderEvent()}startQuiz(null,10,incomingSeed)}
+function launchIncoming(){if(!incomingMode)return startQuiz(null,10,incomingSeed);if(incomingMode.startsWith('quiz:'))return startQuiz(incomingMode.split(':')[1]==='mixed'?null:incomingMode.split(':')[1],10,incomingSeed);if(incomingMode==='episode'){reset('episode',incomingSeed);const q=pickQuestions(null,9,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap'],state.rand).slice(0,3);state.events=[{kind:'q',q:q[0]},{kind:'q',q:q[1]},{kind:'mini',id:m[0]},{kind:'q',q:q[2]},{kind:'q',q:q[3]},{kind:'mini',id:m[1]},{kind:'q',q:q[4]},{kind:'q',q:q[5]},{kind:'q',q:q[6]},{kind:'mini',id:m[2]},{kind:'q',q:q[7]},{kind:'q',q:q[8]}];return renderEvent()}if(incomingMode==='chaos'){reset('chaos',incomingSeed);const q=pickQuestions(null,3,state.rand),m=shuffle(['savvy','m6','greggs','minnies','keys','tap','slugs','memory'],state.rand).slice(0,6);state.events=[{kind:'mini',id:m[0]},{kind:'q',q:q[0]},{kind:'mini',id:m[1]},{kind:'mini',id:m[2]},{kind:'q',q:q[1]},{kind:'mini',id:m[3]},{kind:'mini',id:m[4]},{kind:'q',q:q[2]},{kind:'mini',id:m[5]}];return renderEvent()}startQuiz(null,10,incomingSeed)}
 
-function renderEvent(){if(state.i>=state.events.length)return renderResults();const e=state.events[state.i];if(e.kind==='q')return renderQuestion(e.q);if(e.kind==='finish')return renderQuestion({...e.q,id:'f'+state.i,cat:'FINISH THE MESSAGE'});if(e.kind==='call')return renderCall(e.q);if(e.kind==='mini')return runMini(e.id);if(e.kind==='fats')return runFatsBoss()}
+function renderEvent(){if(state.i>=state.events.length)return renderResults();const e=state.events[state.i];if(e.kind==='q')return renderQuestion(e.q);if(e.kind==='finish')return renderQuestion({...e.q,id:'f'+state.i,cat:'FINISH THE MESSAGE'});if(e.kind==='call')return renderCall(e.q);if(e.kind==='mini')return runMini(e.id);if(e.kind==='fatsInterrupt')return runFatsInterrupt();if(e.kind==='fats')return runFatsBoss()}
 function next(points=0){state.score+=points;state.i++;renderEvent()}
 
-function artFor(cat){if(cat==='US')return ART.q_us_scene;if(cat==='TAP + FRIENDS')return PEOPLE.dad||PEOPLE.denise||ART.q_us_scene;if(CAT[cat])return CAT[cat].img;if(/FATS/.test(cat||''))return ART.cat_fats;return ART.cat_random}
+function artFor(q){
+ if(!q||!q.scene)return null;
+ if(q.scene==='us')return ART.q_us_scene||PEOPLE.couple_art;
+ if(q.scene==='tap')return PEOPLE.dad||PEOPLE.denise||ART.cat_food;
+ if(q.scene==='fats')return PEOPLE.fats_solo||PEOPLE.fats||ART.cat_fats;
+ if(q.scene==='festival')return PEOPLE.couple_fest||ART.cat_travel;
+ if(q.scene==='m6')return ART.m6_scene||ART.cat_travel;
+ return null;
+}
 function renderQuestion(q){
  clear();const s=$('main','phone questionScreen');s.append(header(q.cat||'QUESTION'));
- const paper=$('section','questionPaper cleanQuestion');paper.innerHTML=`<div class="paperCat">${esc(q.cat||'QUESTION')}</div><h1>${esc(q.q)}</h1>`;s.append(paper);
+ const src=artFor(q);
+ if(src){const art=$('div','questionSceneArt relevantScene');const im=$('img');im.src=src;art.append(im);s.append(art)}else{s.classList.add('noQuestionArt')}
+ const paper=$('section','questionPaper');paper.innerHTML=`<div class="paperCat">${esc(q.cat||'QUESTION')}</div><h1>${esc(q.q)}</h1>`;s.append(paper);
  const answers=$('div','answerList');let locked=false;
  (q.o||[]).forEach((o,i)=>{const b=$('button','answer',`<span>${String.fromCharCode(65+i)}</span><b>${esc(o)}</b>`);b.onclick=()=>{if(locked)return;locked=true;const ok=i===(q.a||0);[...answers.children].forEach((x,j)=>{x.disabled=true;if(j===(q.a||0))x.classList.add('correct');if(j===i&&!ok)x.classList.add('wrong')});if(ok){state.correct++;state.streak++;state.best=Math.max(state.best,state.streak);state.score+=100+state.streak*15;vibrate(20)}else{state.streak=0;vibrate([40,30,40])}const fb=$('section','feedback '+(ok?'good':'bad'),`<b>${ok?'CORRECT':'NOPE'}</b><p>${esc(q.r||'')}</p>`);s.append(fb);const n=$('button','nextQuestion','NEXT');n.onclick=()=>{state.i++;renderEvent()};s.append(n);window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})};answers.append(b)});s.append(answers);root.append(s)
 }
@@ -169,20 +155,24 @@ function renderCall(row){
 }
 
 function miniShell(title,sub,cls=''){
- clear();const s=$('main','phone miniScreen '+cls);s.append(header('MINI GAME'));const h=$('section','miniTitle',`<span>DO THE THING</span><h1>${title}</h1><p>${sub}</p>`);s.append(h);const stage=$('section','miniStage');s.append(stage);root.append(s);return{screen:s,stage};
+ clear();const s=$('main','phone miniScreen '+cls);s.append(header('MINI GAME'));const h=$('section','miniTitle',`<span>MICROGAME</span><h1>${title}</h1><p>${sub}</p>`);s.append(h);const stage=$('section','miniStage');s.append(stage);root.append(s);return{screen:s,stage};
 }
 function miniResult(score,title,copy){state.mini+=score;state.score+=score;clear();const s=$('main','phone miniResultScreen');s.append(header('MINI GAME'));const card=$('section','miniResultCard',`<span>ROUND CLEAR</span><h1>${esc(title)}</h1><strong>+${score}</strong><p>${esc(copy)}</p>`);const b=$('button','nextQuestion','KEEP GOING');b.onclick=()=>{state.i++;renderEvent()};card.append(b);s.append(card);root.append(s)}
 function runMini(id){return ({savvy:miniSavvy,m6:miniM6,greggs:miniGreggs,minnies:miniMinnies,keys:miniKeys,tap:miniTap,slugs:miniSlugs,memory:miniMemory}[id]||miniMinnies)()}
 
 function miniSavvy(){
- const {stage}=miniShell('SAVE THE SAVVY B','Keep the balance needle in the safe zone for ten seconds.','savvyGame');
- const bg=$('img','savvyBg');bg.src=ART.savvy_scene;stage.append(bg);
- const hud=$('div','balanceHud','<div class="safeZone"></div><i class="needle"></i>');stage.append(hud);
- const time=$('div','miniTimer','10.0');stage.append(time);
- const controls=$('div','balanceControls');const l=$('button','balanceBtn','LEFT');const r=$('button','balanceBtn','RIGHT');controls.append(l,r);stage.append(controls);
- let pos=0,vel=.015,inside=0,last=performance.now(),start=last,run=true;const needle=hud.querySelector('.needle');let leftDown=false,rightDown=false;
- const bind=(b,set)=>{b.onpointerdown=e=>{e.preventDefault();set(true);b.setPointerCapture&&b.setPointerCapture(e.pointerId)};b.onpointerup=b.onpointercancel=()=>set(false)};bind(l,v=>leftDown=v);bind(r,v=>rightDown=v);
- function tick(t){if(!run)return;const dt=Math.min(.035,(t-last)/1000);last=t;vel+=(state.rand()-.5)*.09*dt;if(leftDown)vel-=.75*dt;if(rightDown)vel+=.75*dt;vel*=.985;pos+=vel;pos=clamp(pos,-1,1);if(Math.abs(pos)<.29)inside+=dt;needle.style.left=((pos+1)/2*100)+'%';const remain=Math.max(0,10-(t-start)/1000);time.textContent=remain.toFixed(1);if(remain<=0){run=false;const pts=Math.round(80+inside/10*220);miniResult(pts,inside>7?'SAVVY B SAVED':'MOSTLY IN THE GLASS',inside>7?'Laura would accept this pour.':'A respectable amount survived the journey.');return}requestAnimationFrame(tick)}requestAnimationFrame(tick)
+ const {stage}=miniShell('SAVE THE SAVVY B','Tilt the bottle with your finger. Land the pour inside the gold line.','savvyGame v8Pour');
+ stage.innerHTML='<div class="pourBackdrop"></div><div class="pourLaura"></div><div class="wineBottle"><i></i><b>SAVVY B</b></div><div class="wineStream"></div><div class="wineGlass"><div class="wineFill"><i></i><i></i><i></i></div><div class="targetPour"></div></div><div class="pourReadout">0%</div><div class="pourHint">DRAG THE BOTTLE DOWN TO POUR</div>';
+ const laura=stage.querySelector('.pourLaura');laura.style.backgroundImage=`url("${PEOPLE.laura_art||ART.savvy_scene||''}")`;
+ const bottle=stage.querySelector('.wineBottle'),stream=stage.querySelector('.wineStream'),fillEl=stage.querySelector('.wineFill'),readout=stage.querySelector('.pourReadout'),hint=stage.querySelector('.pourHint');
+ let fill=0,angle=-18,drag=false,done=false,last=performance.now(),start=last,pointerY=0;
+ const setAngle=a=>{angle=clamp(a,-18,72);bottle.style.transform=`rotate(${angle}deg)`;const pouring=angle>28&&!done;stream.classList.toggle('on',pouring);stream.style.opacity=pouring?Math.min(1,(angle-28)/28):0};
+ bottle.onpointerdown=e=>{e.preventDefault();drag=true;pointerY=e.clientY;bottle.setPointerCapture&&bottle.setPointerCapture(e.pointerId);hint.textContent='TILT MORE FOR A FASTER POUR'};
+ bottle.onpointermove=e=>{if(!drag||done)return;const dy=e.clientY-pointerY;pointerY=e.clientY;setAngle(angle+dy*.55)};
+ bottle.onpointerup=bottle.onpointercancel=()=>{drag=false;if(angle>10){angle=Math.max(-18,angle-10);setAngle(angle)}};
+ setAngle(angle);
+ function finish(over=false){if(done)return;done=true;stream.classList.remove('on');bottle.classList.add('settle');const d=Math.abs(fill-.76);const pts=over?25:Math.max(50,320-Math.round(d*700));setTimeout(()=>miniResult(pts,over?'SAVVY B CASUALTY':d<.035?'ABSOLUTE PUB SCIENCE':d<.09?'CLASSY AND DRY':'MOSTLY IN THE GLASS',over?'You have created a small indoor flood.':d<.035?'The line has been respected with frightening accuracy.':'Laura would still drink it.'),450)}
+ function tick(t){if(done)return;const dt=Math.min(.04,(t-last)/1000);last=t;const rate=angle>28?((angle-28)/44)*.22:0;fill+=rate*dt;fillEl.style.height=(Math.min(fill,1)*100)+'%';readout.textContent=Math.round(fill*100)+'%';if(fill>.66)stage.classList.add('nearTarget');else stage.classList.remove('nearTarget');if(fill>=1.03){stage.classList.add('spill');return finish(true)}if((t-start)>9500){finish(false);return}requestAnimationFrame(tick)}requestAnimationFrame(tick)
 }
 
 function miniM6(){
@@ -218,83 +208,17 @@ function miniKeys(){
 }
 
 function miniTap(){
- const {stage}=miniShell("TAP O'CLOCK",'Hold the tap to pour Dad a Swan Blonde. Release when the pint is right.','tapGame');
- const scene=$('div','tapVisual');
- scene.innerHTML=`
-  <div class="dadWatch"><img alt="" src="${PEOPLE.dad||ART.home_art||''}"><span>DAD IS WATCHING</span></div>
-  <svg class="tapSvg" viewBox="0 0 400 500" role="img" aria-label="Animated beer tap pouring a pint">
-   <defs>
-    <linearGradient id="chrome" x1="0" x2="1"><stop offset="0" stop-color="#737d85"/><stop offset=".28" stop-color="#eef4f7"/><stop offset=".52" stop-color="#8d979f"/><stop offset=".78" stop-color="#f7fbfd"/><stop offset="1" stop-color="#626b72"/></linearGradient>
-    <linearGradient id="beer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd767"/><stop offset=".35" stop-color="#e8aa24"/><stop offset="1" stop-color="#b96e09"/></linearGradient>
-    <clipPath id="pintClip"><path d="M235 205 L350 205 L339 443 Q337 462 319 466 L266 466 Q247 462 245 443 Z"/></clipPath>
-    <filter id="glow"><feGaussianBlur stdDeviation="2.6"/></filter>
-   </defs>
-   <rect x="0" y="0" width="400" height="500" fill="#17120e"/>
-   <rect x="0" y="360" width="400" height="140" fill="#4a2d18"/>
-   <rect x="0" y="360" width="400" height="12" fill="#81552e"/>
-   <g class="tapRig">
-    <rect x="58" y="74" width="77" height="280" rx="34" fill="url(#chrome)" stroke="#eaf2f6" stroke-width="3"/>
-    <ellipse cx="96" cy="82" rx="38" ry="14" fill="#dce5e9" stroke="#f8fbfc" stroke-width="3"/>
-    <rect x="69" y="122" width="55" height="74" rx="11" fill="#101417" stroke="#cbd4d9" stroke-width="3"/>
-    <text x="96" y="147" text-anchor="middle" fill="#b7f33e" font-size="12" font-family="Arial Black,Arial">SWAN</text>
-    <text x="96" y="164" text-anchor="middle" fill="#fff" font-size="11" font-family="Arial Black,Arial">BLONDE</text>
-    <rect x="86" y="24" width="20" height="72" rx="8" fill="#171a1c" stroke="#dbe3e8" stroke-width="3"/>
-    <circle cx="96" cy="22" r="18" fill="#b7f33e" stroke="#f0ffd2" stroke-width="3"/>
-    <path d="M128 225 H238 Q250 225 250 237 V251" fill="none" stroke="url(#chrome)" stroke-width="23" stroke-linecap="round"/>
-    <path d="M250 247 v28" stroke="#e9eff2" stroke-width="12" stroke-linecap="round"/>
-   </g>
-   <path class="beerStream" d="M250 271 C253 320 274 336 286 365" fill="none" stroke="#efb52f" stroke-width="9" stroke-linecap="round"/>
-   <path class="beerGlow" d="M250 271 C253 320 274 336 286 365" fill="none" stroke="#ffe28d" stroke-width="3" stroke-linecap="round" filter="url(#glow)"/>
-   <g class="pint">
-    <g clip-path="url(#pintClip)">
-     <rect class="beerLiquid" x="236" y="466" width="114" height="0" fill="url(#beer)"/>
-     <g class="beerBubbles" opacity=".72">
-      <circle cx="266" cy="418" r="3" fill="#fff6c4"/><circle cx="292" cy="439" r="2.5" fill="#fff6c4"/>
-      <circle cx="320" cy="403" r="2" fill="#fff6c4"/><circle cx="278" cy="385" r="2.2" fill="#fff6c4"/>
-      <circle cx="307" cy="370" r="3" fill="#fff6c4"/><circle cx="329" cy="431" r="1.8" fill="#fff6c4"/>
-     </g>
-     <g class="foam" transform="translate(0 470)">
-      <rect x="238" y="-9" width="111" height="19" rx="9" fill="#fff4d8"/>
-      <circle cx="250" cy="-7" r="8" fill="#fff9e9"/><circle cx="270" cy="-10" r="10" fill="#fff9e9"/>
-      <circle cx="294" cy="-8" r="12" fill="#fff9e9"/><circle cx="320" cy="-9" r="10" fill="#fff9e9"/><circle cx="340" cy="-7" r="7" fill="#fff9e9"/>
-     </g>
-    </g>
-    <path d="M235 205 L350 205 L339 443 Q337 462 319 466 L266 466 Q247 462 245 443 Z" fill="rgba(255,255,255,.035)" stroke="rgba(240,248,255,.92)" stroke-width="6" stroke-linejoin="round"/>
-    <path d="M250 226 L337 226" stroke="rgba(255,255,255,.24)" stroke-width="3"/>
-    <line class="fillTarget" x1="242" y1="253" x2="343" y2="253" stroke="#b7f33e" stroke-width="4" stroke-dasharray="10 9"/>
-    <text x="341" y="244" text-anchor="end" fill="#d8ff8b" font-size="11" font-family="Arial Black,Arial">PERFECT PINT</text>
-   </g>
-  </svg>
-  <div class="pourHint">HOLD • WATCH THE HEAD • RELEASE</div>`;
- stage.append(scene);
- const hold=$('button','pourButton','HOLD TO POUR');stage.append(hold);
- const liquid=scene.querySelector('.beerLiquid'),foam=scene.querySelector('.foam');
- let fill=0,pouring=false,done=false,last=performance.now();
- function paint(){
-  const h=238*fill,y=466-h;
-  liquid.setAttribute('y',y.toFixed(1));liquid.setAttribute('height',h.toFixed(1));
-  foam.setAttribute('transform',`translate(0 ${Math.max(220,y+2).toFixed(1)})`);
-  scene.classList.toggle('nearPerfect',fill>.78&&fill<.86);
- }
- const stop=()=>{
-  if(done||!pouring)return;
-  pouring=false;scene.classList.remove('pouring');done=true;
-  const d=Math.abs(fill-.82),pts=Math.max(30,320-Math.round(d*650));
-  const perfect=d<.035,good=d<.09;
-  setTimeout(()=>miniResult(pts,perfect?'PUB-GRADE PINT':good?'DAD NODS':'DAD HAS NOTES',perfect?'Clean line, proper head. Denise would serve it.':good?'Close enough for Tap O’Clock. No complaints from Dad.':fill>.91?'You have built a Swan Blonde iceberg.':'A little shy. Dad is already pointing at the tap.'),350);
- };
- hold.onpointerdown=e=>{if(done)return;e.preventDefault();pouring=true;scene.classList.add('pouring');hold.textContent='POURING…';hold.setPointerCapture&&hold.setPointerCapture(e.pointerId)};
- hold.onpointerup=hold.onpointercancel=()=>{hold.textContent='HOLD TO POUR';stop()};
- function tick(t){
-  const dt=Math.min(.04,(t-last)/1000);last=t;
-  if(pouring&&!done){
-   fill=clamp(fill+dt*.19,0,1);paint();
-   if(fill>=1){done=true;pouring=false;scene.classList.remove('pouring');return miniResult(20,'FOAM APOCALYPSE','Dad asked for a pint, not a bath.')}
-  }
-  if(!done)requestAnimationFrame(tick);
- }
- paint();requestAnimationFrame(tick)
+ const {stage}=miniShell("TAP O'CLOCK",'Pull the tap handle. Stop the Swan Blonde before the head takes over.','tapGame v8Tap');
+ stage.innerHTML='<div class="tapDad"></div><div class="beerTap"><div class="tapHandle"></div><div class="tapNozzle"></div></div><div class="beerStream"></div><div class="realPint"><div class="beerLiquid"></div><div class="beerFoam"></div><div class="beerTarget"></div></div><button class="tapPull">HOLD TAP OPEN</button><div class="beerReadout">0%</div>';
+ stage.querySelector('.tapDad').style.backgroundImage=`url("${PEOPLE.dad||ART.home_art||''}")`;
+ const btn=stage.querySelector('.tapPull'),handle=stage.querySelector('.tapHandle'),stream=stage.querySelector('.beerStream'),beer=stage.querySelector('.beerLiquid'),foam=stage.querySelector('.beerFoam'),read=stage.querySelector('.beerReadout');
+ let down=false,done=false,fill=0,head=0,last=performance.now();
+ btn.onpointerdown=e=>{e.preventDefault();down=true;handle.classList.add('open');stream.classList.add('on');btn.setPointerCapture&&btn.setPointerCapture(e.pointerId)};
+ const release=()=>{if(!down||done)return;down=false;handle.classList.remove('open');stream.classList.remove('on');if(fill>.25){done=true;const effective=fill+head*.45,d=Math.abs(effective-.79);const pts=Math.max(35,300-Math.round(d*600));setTimeout(()=>miniResult(pts,d<.045?'TAP O’CLOCK PERFECT':head>.22?'FROTHY BUSINESS':'PINT ACCEPTED',d<.045?'Dad has nothing to complain about.':'It is still recognisably a Swan Blonde.'),400)}};
+ btn.onpointerup=btn.onpointercancel=release;
+ function tick(t){if(done)return;const dt=Math.min(.04,(t-last)/1000);last=t;if(down){fill=clamp(fill+dt*.17,0,1.05);head=clamp(head+dt*(fill>.55?.055:.02),0,.35)}beer.style.height=(Math.min(fill,1)*100)+'%';foam.style.height=(head*100)+'%';read.textContent=Math.round(fill*100)+'%';if(fill+head>=1.08){done=true;stream.classList.remove('on');stage.classList.add('beerSpill');setTimeout(()=>miniResult(20,'FOAM EMERGENCY','Dad wanted a pint, not a bubble bath.'),350);return}requestAnimationFrame(tick)}requestAnimationFrame(tick)
 }
+
 function miniSlugs(){
  const {stage}=miniShell('TENT VS SLUGS','Tap the slugs before they reach the tent. Eight seconds.','slugGame');const tent=$('div','tent','TENT');stage.append(tent);const timer=$('div','miniTimer','8.0');stage.append(timer);let start=performance.now(),last=0,run=true,kills=0,slugs=[];
  function spawn(){const s=$('button','slug','SLUG');const y=60+state.rand()*(stage.clientHeight-140);s.style.top=y+'px';stage.append(s);const it={el:s,x:-80,y};slugs.push(it);s.onclick=()=>{if(it.dead)return;it.dead=true;kills++;s.classList.add('squished');setTimeout(()=>s.remove(),120)}}
@@ -306,6 +230,26 @@ function miniMemory(){
  const flash=i=>new Promise(res=>{pads[i].classList.add('lit');setTimeout(()=>{pads[i].classList.remove('lit');setTimeout(res,120)},320)});
  async function show(){busy=true;input=[];seq.push(Math.floor(state.rand()*4));await new Promise(r=>setTimeout(r,400));for(const i of seq)await flash(i);busy=false}
  pads.forEach((p,i)=>p.onclick=async()=>{if(busy)return;await flash(i);input.push(i);const k=input.length-1;if(input[k]!==seq[k]){busy=true;return miniResult(50+round*60,'WRONG 3000','The remix has left the building.')}if(input.length===seq.length){round++;if(round>=3)return miniResult(300,'MEMORY MIX CLEARED','Andrew 3000 would be proud. André might ask questions.');show()}});show()
+}
+
+function runFatsInterrupt(){
+ const pick=Math.floor(state.rand()*3);
+ if(pick===0){
+   const {stage}=miniShell('FATS INTERRUPTION: FREEBIES','Grab the two things Fats actually gave Laura. Ignore the decoys.','fatsInterrupt freebiesGame');
+   const items=shuffle([['JEANS',1],['SKINCARE',1],['KETTLE',0],['LAMP',0],['TRAINERS',0],['UMBRELLA',0]],state.rand);let picked=0,score=0;
+   const g=$('div','freebieGrid');stage.append(g);items.forEach(([n,good])=>{const b=$('button','freebie',n);b.onclick=()=>{if(b.disabled)return;b.disabled=true;b.classList.add(good?'right':'wrong');picked++;score+=good?1:-1;if(picked===2)setTimeout(()=>miniResult(Math.max(40,150+score*70),score===2?'FATS DEPARTMENT STORE':'QUESTIONABLE FREEBIE JUDGEMENT','Jeans and skincare. Obviously.'),350)};g.append(b)});
+ }else if(pick===1){
+   const {stage}=miniShell('FATS INTERRUPTION: WHERE IS HE?','Three guesses. Hotter means closer.','fatsInterrupt locatorGame');
+   const map=$('div','fatsMap');const txt=$('div','heatText','FIND FATS');stage.append(map,txt);const target={x:15+state.rand()*70,y:18+state.rand()*64};let tries=0,best=999;
+   map.onclick=e=>{tries++;const r=map.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100,d=Math.hypot(x-target.x,y-target.y);best=Math.min(best,d);const dot=$('i','guessDot');dot.style.left=x+'%';dot.style.top=y+'%';map.append(dot);txt.textContent=d<9?'THAT IS LITERALLY FATS':d<20?'BOILING':d<35?'WARM':'ABSOLUTELY NOWHERE NEAR';if(d<9||tries>=3)setTimeout(()=>miniResult(Math.max(40,260-Math.round(best*4)),'FATS LOCATED','A completely normal amount of effort to locate one man.'),450)};
+ }else{
+   const {stage}=miniShell('FATS INTERRUPTION: TRAIN RAGE','Release inside the tiny calm zone before rail replacement fury wins.','fatsInterrupt rageGame');
+   stage.innerHTML+='<div class="rageMeter"><i></i><b></b></div><button class="rageBtn">HOLD TO COMPLAIN</button>';
+   const fill=stage.querySelector('.rageMeter i'),btn=stage.querySelector('.rageBtn');let v=0,down=false,done=false,last=performance.now();
+   btn.onpointerdown=e=>{e.preventDefault();down=true;btn.setPointerCapture&&btn.setPointerCapture(e.pointerId)};
+   btn.onpointerup=btn.onpointercancel=()=>{if(done)return;down=false;done=true;const d=Math.abs(v-.78);setTimeout(()=>miniResult(Math.max(35,280-Math.round(d*600)),d<.05?'COMPLAINT CONTAINED':'NETWORK RAIL HAS BEEN INFORMED','Fats has expressed a proportionate amount of concern.'),320)};
+   function tick(t){if(done)return;const dt=(t-last)/1000;last=t;if(down)v=clamp(v+dt*.25,0,1);fill.style.width=v*100+'%';if(v>=1){done=true;return miniResult(25,'RAIL REPLACEMENT FURY','The complaint has become its own transport incident.')}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+ }
 }
 
 function runFatsBoss(){
