@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09080d">
 <title>Penwortham After Dark — Rick & Laura</title>
-<script src="v5-assets.js"></script>
+<script src="v5-assets.js">
+/* M6 survival microgame */
+$("m6Art").src=B.cat_travel||A.couple_fest||A.couple_art||fallback;let m6Running=false,m6Lane=1,m6LeftTime=10,m6Hits=0,m6Last=0,m6Spawn=0,m6Raf=0;function setM6Lane(n){m6Lane=Math.max(0,Math.min(2,n));$("m6Car").style.left=(16.67+m6Lane*33.33)+"%"}function spawnTraffic(){const car=document.createElement("div");car.className="trafficCar";const lane=Math.floor(Math.random()*3);car.dataset.lane=String(lane);car.dataset.y="-90";car.style.left=(16.67+lane*33.33)+"%";$("m6Road").appendChild(car)}function startM6(){[...$("m6Road").querySelectorAll(".trafficCar")].forEach(x=>x.remove());m6Running=true;m6Lane=1;m6LeftTime=10;m6Hits=0;m6Spawn=.25;m6Last=performance.now();setM6Lane(1);$("m6Result").classList.remove("on");$("m6Hits").textContent="0 HITS";m6Raf=requestAnimationFrame(m6Tick)}function m6Tick(t){if(!m6Running)return;const dt=Math.min(.05,(t-m6Last)/1000);m6Last=t;m6LeftTime-=dt;const elapsed=10-m6LeftTime;const interval=Math.max(.34,.82-elapsed*.045);m6Spawn-=dt;if(m6Spawn<=0){spawnTraffic();m6Spawn=interval}const roadH=$("m6Road").clientHeight;const carTop=roadH-160;const speed=155+elapsed*23;[...$("m6Road").querySelectorAll(".trafficCar")].forEach(car=>{let y=Number(car.dataset.y)+speed*dt;car.dataset.y=String(y);car.style.top=y+"px";const sameLane=Number(car.dataset.lane)===m6Lane;if(sameLane&&car.dataset.hit!=="1"&&y+72>carTop&&y<carTop+80){car.dataset.hit="1";m6Hits++;$("m6Hits").textContent=m6Hits+" HITS";$("m6Road").classList.remove("crash");void $("m6Road").offsetWidth;$("m6Road").classList.add("crash");car.remove();return}if(y>roadH+100)car.remove()});$("m6Time").textContent=Math.max(0,m6LeftTime).toFixed(1);if(m6LeftTime<=0){endM6();return}m6Raf=requestAnimationFrame(m6Tick)}function endM6(){m6Running=false;cancelAnimationFrame(m6Raf);const pts=Math.max(150,1500-m6Hits*350);score+=pts;m6Done=true;$("m6Score").textContent=pts.toLocaleString();$("m6Title").textContent=m6Hits===0?"M6 MIRACLE":m6Hits<=2?"STILL MOVING":"STANDARD M6 EXPERIENCE";$("m6Text").textContent=m6Hits===0?"No collisions. Frankly suspicious.":m6Hits+" collision"+(m6Hits===1?"":"s")+". At least you eventually got home.";$("m6Result").classList.add("on")}$("m6Left").onclick=()=>{if(m6Running)setM6Lane(m6Lane-1)};$("m6Right").onclick=()=>{if(m6Running)setM6Lane(m6Lane+1)};$("m6Continue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+
+</script>
 <script src="v7-assets.js"></script>
 <script src="v8-curated.js"></script>
 <style>
@@ -155,6 +159,11 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
   to{transform:translateX(-50%) skewX(1.4deg) scaleX(1.08)}
 }
 
+
+/* M6 survival microgame */
+.roadGame{position:relative;flex:1;min-height:610px;border:2px solid #302839;border-radius:24px;overflow:hidden;background:#101116;box-shadow:0 22px 60px #0009}.roadArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;filter:saturate(.75) contrast(1.15)}.roadSurface{position:absolute;inset:0;background:linear-gradient(90deg,transparent 32.7%,rgba(255,255,255,.25) 32.9%,rgba(255,255,255,.25) 33.4%,transparent 33.6%,transparent 66%,rgba(255,255,255,.25) 66.2%,rgba(255,255,255,.25) 66.7%,transparent 66.9%),repeating-linear-gradient(180deg,#202228 0 38px,#181a1f 38px 76px)}.roadSurface:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#08090c 0 8%,transparent 8% 92%,#08090c 92% 100%);box-shadow:inset 0 0 55px #000}.m6Hud{position:absolute;z-index:6;left:12px;right:12px;top:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.m6Badge{background:#08090ddc;border:1px solid #6d6472;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:1000}.m6Car,.trafficCar{position:absolute;z-index:4;left:50%;transform:translateX(-50%);border-radius:14px 14px 10px 10px;border:2px solid #ffffff9c;box-shadow:0 8px 20px #0009}.m6Car{bottom:82px;width:54px;height:78px;background:linear-gradient(180deg,#ff3a98 0 62%,#94145a 62% 100%);transition:left .12s cubic-bezier(.2,.8,.2,1)}.m6Car:before,.trafficCar:before{content:"";position:absolute;left:8px;right:8px;top:9px;height:22px;border-radius:8px 8px 4px 4px;background:linear-gradient(#bfe7ff,#39546a)}.m6Car:after,.trafficCar:after{content:"";position:absolute;left:7px;right:7px;bottom:8px;height:9px;border-radius:99px;background:#141414;box-shadow:0 -33px 0 #141414}.trafficCar{top:-90px;width:50px;height:72px;background:linear-gradient(180deg,#ffd548 0 62%,#9d7611 62% 100%)}.m6Controls{position:absolute;z-index:8;left:12px;right:12px;bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.m6Controls button{height:54px;border:0;border-radius:15px;background:#111017e8;color:#fff;border:2px solid #6e6475;font-weight:1000;letter-spacing:.08em;touch-action:manipulation}.m6Controls button:active{transform:translateY(2px);background:#241a29}.roadGame.crash{animation:roadCrash .22s linear 1}@keyframes roadCrash{25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
+@media (orientation:landscape) and (max-height:600px){#m6game.on{display:grid;grid-template-columns:minmax(190px,.42fr) minmax(0,1.58fr);gap:12px;align-items:stretch}#m6game .miniHead{margin:0;padding:14px 10px;display:flex;flex-direction:column;justify-content:center;text-align:left}#m6game .miniHead h2{font-size:clamp(28px,8vh,42px)}#m6game .miniHead p{margin:0;max-width:none}#m6game .roadGame{min-height:0;height:100%;border-radius:18px}#m6game .m6Car{bottom:64px;width:44px;height:62px}#m6game .trafficCar{width:42px;height:58px}#m6game .m6Controls{bottom:8px}#m6game .m6Controls button{height:42px}}
+
 </style>
 </head>
 <body>
@@ -196,6 +205,8 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
  </div>
 </section>
 
+
+<section id="m6game" class="screen"><div class="miniHead"><div class="eyebrow">M6 AFTER MIDNIGHT</div><h2>Get Home</h2><p>Ten seconds. Three lanes. The traffic gets faster. Try not to let the M6 become the third person in the relationship.</p></div><div class="roadGame" id="m6Road"><img class="roadArt" id="m6Art"><div class="roadSurface"></div><div class="m6Hud"><div class="m6Badge" id="m6Time">10.0</div><div class="m6Badge" id="m6Hits">0 HITS</div></div><div class="m6Car" id="m6Car"></div><div class="m6Controls"><button id="m6Left">LEFT</button><button id="m6Right">RIGHT</button></div><div class="miniResult" id="m6Result"><div class="resultCard"><div class="big" id="m6Score">0</div><h3 id="m6Title">Result</h3><p id="m6Text"></p><button id="m6Continue">Back to the quiz</button></div></div></div></section>
 <section id="end" class="screen end">
  <div class="endCard"><img id="endImg"><div class="small">ROUND COMPLETE</div><h2>You survived Penwortham.</h2><div class="finalScore" id="finalScore">0</div><p class="note">Questions, bad decisions and Tap O'Clock.</p><button class="primary" id="again">Play again</button></div>
 </section>
@@ -205,7 +216,7 @@ const A=window.V5_ASSETS||{}, B=window.V7_ASSETS||{}, BANK=window.V8_CURATED||[]
 const fallback=A.couple_art||B.home_art||A.laura||A.dad||"";
 const chosenIds=["v8u01","v8u03","v8u05","v8u08","v8u10","v8m01","v8m03","v8t01","v8t03","v8t06","v8f01","v8r01"];
 const questions=chosenIds.map(id=>BANK.find(q=>q.id===id)).filter(Boolean);
-let qi=0, score=0, locked=false, miniDone=false;
+let qi=0, score=0, locked=false, miniDone=false, m6Done=false;
 const $=id=>document.getElementById(id);
 $("heroImg").src=A.couple_art||B.home_art||fallback;
 $("endImg").src=A.couple_art||fallback;
@@ -257,7 +268,7 @@ $("nextBtn").onclick=()=>{
  if(qi===2&&!miniDone){show("mini");startPour();return}
  qi++; if(qi>=questions.length){finish();return} renderQuestion();
 };
-$("startBtn").onclick=()=>{qi=0;score=0;miniDone=false;show("quiz");renderQuestion()};
+$("startBtn").onclick=()=>{qi=0;score=0;miniDone=false;m6Done=false;show("quiz");renderQuestion()};
 $("again").onclick=()=>show("home");
 function finish(){ $("finalScore").textContent=score.toLocaleString(); show("end") }
 
