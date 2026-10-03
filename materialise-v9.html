@@ -266,6 +266,7 @@ function answer(button,q){
 }
 $("nextBtn").onclick=()=>{
  if(qi===2&&!miniDone){show("mini");startPour();return}
+ if(qi===6&&!m6Done){show("m6game");startM6();return}
  qi++; if(qi>=questions.length){finish();return} renderQuestion();
 };
 $("startBtn").onclick=()=>{qi=0;score=0;miniDone=false;m6Done=false;show("quiz");renderQuestion()};
