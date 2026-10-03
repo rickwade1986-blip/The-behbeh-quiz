@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09080d">
-<title>Rick & Laura Quiz — V9 Vertical Slice</title>
+<title>Penwortham After Dark — Rick & Laura</title>
 <script src="v5-assets.js"></script>
 <script src="v7-assets.js"></script>
 <script src="v8-curated.js"></script>
@@ -51,14 +51,118 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
 .meters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}.meter label{display:flex;justify-content:space-between;font-size:9px;font-weight:900;color:#bfb5c2}.bar{margin-top:4px;height:9px;border-radius:99px;background:#251f29;overflow:hidden}.bar i{height:100%;display:block;width:0;background:linear-gradient(90deg,var(--yellow),#ff9a2c)}
 .pressureRow{display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center}.pressureRow input{width:100%;accent-color:var(--pink)}.hold{height:52px;border:0;border-radius:14px;background:var(--pink);font-weight:1000;color:#250012;box-shadow:0 6px 0 #8b1357;touch-action:none}.hold.down{transform:translateY(4px);box-shadow:0 2px 0 #8b1357}.miniResult{position:absolute;inset:0;background:#07060bdc;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.miniResult.on{display:flex}.resultCard{width:100%;border-radius:24px;background:#15121b;border:2px solid #413548;padding:24px;text-align:center;box-shadow:0 22px 70px #000}.resultCard .big{font-size:54px;font-weight:1000;color:var(--yellow);line-height:1}.resultCard h3{font-size:27px;margin:4px 0}.resultCard p{font-size:12px;color:#cbbfce;line-height:1.4}.resultCard button{width:100%;border:0;border-radius:14px;padding:15px;background:var(--green);font-weight:1000}
 .end{align-items:center;justify-content:center;text-align:center}.endCard{width:100%;background:#15121a;border:2px solid #392e40;border-radius:25px;padding:27px 20px}.end img{width:190px;height:190px;object-fit:cover;border-radius:50%;border:5px solid var(--pink)}.end h2{font-size:38px;line-height:.95;margin:17px 0 7px}.end .finalScore{font-size:64px;font-weight:1000;color:var(--yellow)}
+
+/* Mobile game layout: portrait works, landscape is the intended full game view. */
+@media (orientation:landscape) and (max-height:600px){
+  html,body{height:100%;overflow:hidden}
+  .app{
+    width:100%;
+    max-width:1180px;
+    height:100dvh;
+    min-height:0;
+    padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+    overflow:hidden;
+  }
+  .screen{min-height:0;height:100%}
+  #home.on{
+    display:grid;
+    grid-template-columns:minmax(0,1.65fr) minmax(250px,.75fr);
+    grid-template-rows:1fr auto auto;
+    gap:10px 14px;
+    align-items:end;
+  }
+  #home .hero{grid-column:1;grid-row:1/4;height:100%;min-height:0}
+  #home .hero img{object-fit:contain;background:#100d13}
+  #home .primary{grid-column:2;grid-row:2;margin:0}
+  #home .note{grid-column:2;grid-row:3;margin:4px 6px 2px}
+
+  #quiz.on{
+    display:grid;
+    grid-template-columns:minmax(0,1.12fr) minmax(330px,.88fr);
+    grid-template-rows:auto 7px auto 1fr auto auto;
+    gap:7px 14px;
+    align-content:stretch;
+  }
+  #quiz .top{grid-column:1/-1;grid-row:1;margin:0}
+  #quiz .progress{grid-column:1/-1;grid-row:2;margin:0}
+  #quiz .scene{
+    grid-column:1;grid-row:3/7;
+    height:auto;min-height:0;border-radius:18px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #quiz .scene img{object-fit:contain;background:#100d13}
+  #quiz .paper{grid-column:2;grid-row:3;margin:0;padding:13px 14px 14px}
+  #quiz .paper h2{font-size:clamp(17px,3.2vh,22px)}
+  #quiz .cat{font-size:10px}
+  #quiz .answers{grid-column:2;grid-row:4;gap:7px;align-content:start}
+  #quiz .answer{min-height:48px;padding:8px 9px;font-size:12px}
+  #quiz .feedback{grid-column:2;grid-row:5;margin:0;padding:9px 11px}
+  #quiz .feedback strong{font-size:17px}
+  #quiz .feedback p{font-size:10px;margin-top:3px}
+  #quiz .next{grid-column:2;grid-row:6;margin:0;padding:10px}
+
+  #mini.on{
+    display:grid;
+    grid-template-columns:minmax(190px,.42fr) minmax(0,1.58fr);
+    gap:12px;
+    align-items:stretch;
+  }
+  #mini .miniHead{
+    margin:0;padding:14px 10px;
+    display:flex;flex-direction:column;justify-content:center;text-align:left;
+  }
+  #mini .miniHead h2{font-size:clamp(28px,8vh,42px)}
+  #mini .miniHead p{margin:0;max-width:none}
+  #mini .pub{min-height:0;height:100%;border-radius:18px}
+  #mini .pubArt{object-fit:contain;background:#100d13;opacity:.34}
+  #mini .tapRig{top:10px;transform:scale(.78);transform-origin:top center}
+  #mini .glassWrap{top:84px;width:132px;height:218px}
+  #mini .hud{left:12px;right:12px;bottom:10px;padding:9px}
+  #mini .hold{height:42px}
+  #mini .timer{top:10px;right:10px;padding:6px 9px}
+  #mini .targetLabel{right:8px;bottom:52px}
+  #mini .miniResult{padding:14px}
+  #mini .resultCard{max-width:520px;padding:16px}
+  #mini .resultCard .big{font-size:42px}
+
+  #end.on{padding:8px}
+  #end .endCard{
+    max-width:760px;margin:auto;
+    display:grid;
+    grid-template-columns:150px 1fr;
+    grid-template-rows:auto auto auto auto;
+    column-gap:22px;
+    align-items:center;text-align:left;padding:18px 22px;
+  }
+  #end img{grid-column:1;grid-row:1/5;width:140px;height:140px;margin:auto}
+  #end .small,#end h2,#end .finalScore,#end .note,#end .primary{grid-column:2}
+  #end h2{font-size:30px;margin:5px 0}
+  #end .finalScore{font-size:48px}
+  #end .note{text-align:left;margin:2px 0 4px}
+  #end .primary{margin-top:6px}
+}
+@media (orientation:portrait){
+  .hero img,.scene img{object-fit:contain;background:#100d13}
+}
+.stream{
+  background:linear-gradient(90deg,rgba(255,255,255,.16),#f4c334 18%,#ffe98a 48%,#d58b12 80%,rgba(255,255,255,.12));
+  box-shadow:0 0 10px #ffc94c88,0 0 22px #ffc94c55;
+  animation:pourWobble .18s ease-in-out infinite alternate;
+  transform-origin:top center;
+}
+@keyframes pourWobble{
+  from{transform:translateX(-50%) skewX(-1.4deg) scaleX(.88)}
+  to{transform:translateX(-50%) skewX(1.4deg) scaleX(1.08)}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <section id="home" class="screen on">
- <div class="hero"><img id="heroImg"><div class="brand"><div class="small">V9 VERTICAL SLICE</div><h1>LAURA <span>QUIZ</span></h1><p>Real memories. Actual game mechanics. No random decorative AI wallpaper.</p></div></div>
- <button class="primary" id="startBtn">Play the slice</button>
- <div class="note">5 curated questions + one proper Tap O'Clock pouring game.</div>
+ <div class="hero"><img id="heroImg"><div class="brand"><div class="small">PENWORTHAM AFTER DARK</div><h1>LAURA <span>QUIZ</span></h1><p>Real memories. Actual game mechanics. No random decorative AI wallpaper.</p></div></div>
+ <button class="primary" id="startBtn">Start</button>
+ <div class="note">Tap O'Clock is waiting.</div>
 </section>
 
 <section id="quiz" class="screen">
@@ -93,7 +197,7 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
 </section>
 
 <section id="end" class="screen end">
- <div class="endCard"><img id="endImg"><div class="small">VERTICAL SLICE COMPLETE</div><h2>This is now a game screen, not a moodboard.</h2><div class="finalScore" id="finalScore">0</div><p class="note">Next pass: replace remaining inherited art with approved cast masters and expand only after this interaction standard is locked.</p><button class="primary" id="again">Play again</button></div>
+ <div class="endCard"><img id="endImg"><div class="small">ROUND COMPLETE</div><h2>You survived Penwortham.</h2><div class="finalScore" id="finalScore">0</div><p class="note">Questions, bad decisions and Tap O'Clock.</p><button class="primary" id="again">Play again</button></div>
 </section>
 </div>
 <script>
