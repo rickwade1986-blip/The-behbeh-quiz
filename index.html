@@ -203,7 +203,7 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
 <script>
 const A=window.V5_ASSETS||{}, B=window.V7_ASSETS||{}, BANK=window.V8_CURATED||[];
 const fallback=A.couple_art||B.home_art||A.laura||A.dad||"";
-const chosenIds=["v8u01","v8u08","v8t01","v8t03","v8m02"];
+const chosenIds=["v8u01","v8u03","v8u05","v8u08","v8u10","v8m01","v8m03","v8t01","v8t03","v8t06","v8f01","v8r01"];
 const questions=chosenIds.map(id=>BANK.find(q=>q.id===id)).filter(Boolean);
 let qi=0, score=0, locked=false, miniDone=false;
 const $=id=>document.getElementById(id);
@@ -212,11 +212,16 @@ $("endImg").src=A.couple_art||fallback;
 $("pubArt").src=A.dad||A.denise||B.cat_food||fallback;
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));$(id).classList.add("on")}
 function artFor(q){
- if(q.scene==="fats") return A.fats_solo||B.cat_fats||fallback;
+ if(q.scene==="fats") return A.fats_solo||A.fats||B.cat_fats||fallback;
  if(q.scene==="tap") return A.dad||A.denise||B.cat_food||fallback;
- if(q.scene==="festival") return B.q_festival_scene||B.cat_travel||A.couple_art||fallback;
- if(q.scene==="m6") return B.q_m6_scene||B.cat_travel||fallback;
- return B.q_us_scene||A.couple_art||fallback;
+ if(q.scene==="festival"||q.scene==="m6") return B.cat_travel||A.couple_fest||fallback;
+ if(q.cat==="MUSIC") return B.cat_music||A.couple_art||fallback;
+ if(q.cat==="FOOD + DRINK") return B.cat_food||A.couple_art||fallback;
+ if(q.cat==="TRAVEL") return B.cat_travel||A.couple_fest||fallback;
+ if(q.cat==="WEIRD SHIT") return B.cat_random||B.cat_animals||fallback;
+ if(q.cat==="HISTORY") return B.cat_history||B.cat_random||fallback;
+ if(q.cat==="ANIMALS") return B.cat_animals||fallback;
+ return B.q_us_scene||A.couple_art||A.couple_real||fallback;
 }
 function renderQuestion(){
  const q=questions[qi]; locked=false;
@@ -228,15 +233,21 @@ function renderQuestion(){
  $("question").textContent=q.q;
  $("feedback").classList.remove("on"); $("nextBtn").classList.remove("on");
  const box=$("answers"); box.innerHTML="";
- q.o.forEach((label,i)=>{
-   const b=document.createElement("button"); b.className="answer"; b.textContent=label;
-   b.onclick=()=>answer(i,b,q); box.appendChild(b);
+ const choices=q.o.map((label,i)=>({label,correct:i===q.a})).sort(()=>Math.random()-.5);
+ choices.forEach(choice=>{
+   const b=document.createElement("button"); b.className="answer"; b.textContent=choice.label;
+   b.dataset.correct=choice.correct?"1":"0";
+   b.onclick=()=>answer(b,q); box.appendChild(b);
  });
 }
-function answer(i,button,q){
+function answer(button,q){
  if(locked)return; locked=true;
- [...$("answers").children].forEach((b,n)=>b.classList.add(n===q.a?"good":n===i?"bad":""));
- const ok=i===q.a; if(ok) score+=1000;
+ const ok=button.dataset.correct==="1";
+ [...$("answers").children].forEach(b=>{
+   if(b.dataset.correct==="1") b.classList.add("good");
+   else if(b===button&&!ok) b.classList.add("bad");
+ });
+ if(ok) score+=1000;
  $("score").textContent=score;
  $("feedbackTitle").textContent=ok?"YES.":"ABSOLUTELY NOT.";
  $("feedbackText").textContent=q.r;
