@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<title>Rick & Laura Quiz — V9 Vertical Slice</title>
+<script src="v5-assets.js"></script>
+<script src="v7-assets.js"></script>
+<script src="v8-curated.js"></script>
+<style>
+:root{
+ --bg:#08070c;--panel:#121017;--paper:#f7e9c5;--ink:#17110f;--pink:#ff3a98;--blue:#54c7ff;
+ --yellow:#ffd548;--green:#50dc7d;--purple:#9b5cff;--cream:#fff4db;--line:#342b3b;
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#030205;color:white;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,input{font:inherit}.app{width:min(100%,430px);min-height:100dvh;margin:auto;position:relative;overflow:hidden;background:
+radial-gradient(circle at 15% 0,rgba(255,58,152,.18),transparent 24rem),
+radial-gradient(circle at 95% 15%,rgba(84,199,255,.13),transparent 23rem),#08070c;
+padding:max(14px,env(safe-area-inset-top)) 14px max(22px,env(safe-area-inset-bottom))}
+.screen{display:none;min-height:calc(100dvh - 30px)}.screen.on{display:flex;flex-direction:column}
+.hero{position:relative;height:430px;border-radius:28px;overflow:hidden;border:2px solid #332c3a;background:#15111b;box-shadow:0 24px 70px #0009}
+.hero img{position:absolute;width:100%;height:100%;object-fit:cover;filter:saturate(1.07) contrast(1.03)}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.06) 30%,rgba(7,4,9,.2) 55%,rgba(7,4,9,.96) 92%)}
+.brand{position:absolute;z-index:2;left:17px;right:17px;bottom:20px;transform:rotate(-1deg)}
+.brand .small{font-weight:900;letter-spacing:.18em;font-size:11px;color:var(--blue)}
+.brand h1{margin:4px 0 6px;font-size:48px;line-height:.82;letter-spacing:-.05em;text-transform:uppercase;font-weight:1000;text-shadow:4px 4px 0 #000}
+.brand h1 span{color:var(--pink)}.brand p{margin:0;max-width:310px;font-weight:800;font-size:12px;color:#f7eaf2}
+.primary{margin-top:14px;border:0;border-radius:16px;padding:17px 18px;background:linear-gradient(135deg,var(--yellow),#ff9f36);font-weight:1000;text-transform:uppercase;box-shadow:0 10px 0 #6a4015;color:#1a1005}
+.note{text-align:center;color:#978d9d;font-size:11px;margin:18px 8px 0}
+.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-bottom:12px}
+.pill{border:1px solid #3b3142;background:#141119;border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900}
+.score{font-weight:1000;text-align:right}.progress{height:7px;background:#201a24;border-radius:99px;overflow:hidden;margin-bottom:13px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));width:0;transition:.3s}
+.scene{height:190px;border:2px solid #30283a;border-radius:22px;overflow:hidden;background:#15121a;box-shadow:0 17px 40px #0006}
+.scene img{width:100%;height:100%;object-fit:cover;display:block}.paper{position:relative;background:var(--paper);color:var(--ink);border-radius:10px;padding:19px 17px 20px;margin:13px 4px 17px;box-shadow:6px 7px 0 #6d4e28,0 16px 35px #0007;transform:rotate(-.3deg)}
+.paper:before{content:"";position:absolute;top:-8px;left:26px;width:54px;height:16px;background:#d9c38b;opacity:.9;transform:rotate(-6deg)}
+.cat{font-size:13px;font-weight:1000;color:#c81e73;text-transform:uppercase;letter-spacing:.06em}.paper h2{font-size:22px;line-height:1.15;margin:7px 0 0;letter-spacing:-.02em}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}.answer{min-height:78px;border:2px solid #332b3b;border-radius:15px;background:#15111a;color:white;padding:11px;text-align:left;font-weight:850;line-height:1.18;box-shadow:0 8px 18px #0005}
+.answer:active{transform:translateY(2px)}.answer.good{background:#123520;border-color:#58e88d}.answer.bad{background:#3d151f;border-color:#ff5e79}.feedback{display:none;margin-top:12px;border-radius:15px;padding:13px 14px;background:#14121a;border:2px solid #3c3342}.feedback.on{display:block}.feedback strong{font-size:22px;display:block}.feedback p{margin:5px 0 0;color:#d9d1dc;font-size:12px;line-height:1.4}
+.next{display:none;margin-top:10px;border:0;border-radius:14px;padding:15px;background:var(--pink);color:#240012;font-weight:1000}.next.on{display:block}
+.miniHead{text-align:center;margin:5px 0 12px}.miniHead .eyebrow{font-size:11px;color:var(--blue);font-weight:1000;letter-spacing:.13em}.miniHead h2{font-size:40px;line-height:.9;margin:5px 0 6px;text-transform:uppercase}.miniHead p{margin:0 auto;max-width:330px;font-size:12px;color:#c9bfcc}
+.pub{position:relative;flex:1;min-height:610px;border:2px solid #302839;border-radius:24px;overflow:hidden;background:
+linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle at 50% 15%,#754a24,#1a1011 48%,#08070b 80%);box-shadow:0 22px 60px #0009}
+.pubArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.26;filter:blur(.5px) saturate(.8)}
+.tapRig{position:absolute;left:20px;right:20px;top:25px;height:90px}.tapBody{position:absolute;left:calc(50% - 56px);top:0;width:112px;height:46px;border-radius:18px 18px 8px 8px;background:linear-gradient(#d7d0bf,#7c766d);box-shadow:inset 0 5px 8px #fff7,0 7px 16px #0006}.nozzle{position:absolute;left:calc(50% - 8px);top:38px;width:16px;height:55px;background:linear-gradient(90deg,#4f4b48,#b8b2aa,#4d4945);border-radius:4px}.stream{position:absolute;left:50%;top:90px;width:8px;height:0;background:linear-gradient(90deg,#f4d455,#fff2a6,#d49b24);transform:translateX(-50%);border-radius:8px;opacity:0;box-shadow:0 0 12px #ffc94caa;transition:width .08s}
+.glassWrap{position:absolute;left:50%;top:150px;transform:translateX(-50%);width:190px;height:310px;filter:drop-shadow(0 20px 16px #0009)}.glass{position:absolute;inset:0 14px 0;border:4px solid #ffffffb8;border-top-width:3px;border-radius:18px 18px 35px 35px;overflow:hidden;background:linear-gradient(90deg,#ffffff08,#ffffff20 45%,#ffffff05);clip-path:polygon(3% 0,97% 0,87% 100%,13% 100%)}
+.beer{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(90deg,#d88911,#ffc536 50%,#d8870c);transition:height .08s linear}.beer:before{content:"";position:absolute;left:-20%;top:-8px;width:140%;height:18px;border-radius:50%;background:#ffd14b;animation:wave 1s linear infinite}.foam{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#fffef5,#f2e7c0);transition:height .12s;box-shadow:0 -4px 10px #fff8}
+@keyframes wave{50%{transform:translateX(7px) scaleY(.7)}}.bubbles{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#fff9 0 1px,transparent 1.7px);background-size:17px 23px;opacity:.23;animation:rise 2s linear infinite}@keyframes rise{to{background-position:0 -46px}}
+.target{position:absolute;left:17px;right:17px;bottom:31px;height:42px;border-top:3px dashed #84ff93;border-bottom:3px dashed #84ff93;opacity:.9}.targetLabel{position:absolute;right:18px;bottom:78px;background:#0c1b10;border:1px solid #74e68a;border-radius:9px;padding:5px 7px;font-size:9px;font-weight:1000}
+.timer{position:absolute;top:14px;right:14px;border-radius:99px;background:#0b0910dd;border:2px solid white;padding:8px 11px;font-weight:1000;font-size:13px}.hud{position:absolute;left:16px;right:16px;bottom:16px;padding:13px;border-radius:18px;background:#0c0a10ea;border:1px solid #403547}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}.meter label{display:flex;justify-content:space-between;font-size:9px;font-weight:900;color:#bfb5c2}.bar{margin-top:4px;height:9px;border-radius:99px;background:#251f29;overflow:hidden}.bar i{height:100%;display:block;width:0;background:linear-gradient(90deg,var(--yellow),#ff9a2c)}
+.pressureRow{display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center}.pressureRow input{width:100%;accent-color:var(--pink)}.hold{height:52px;border:0;border-radius:14px;background:var(--pink);font-weight:1000;color:#250012;box-shadow:0 6px 0 #8b1357;touch-action:none}.hold.down{transform:translateY(4px);box-shadow:0 2px 0 #8b1357}.miniResult{position:absolute;inset:0;background:#07060bdc;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.miniResult.on{display:flex}.resultCard{width:100%;border-radius:24px;background:#15121b;border:2px solid #413548;padding:24px;text-align:center;box-shadow:0 22px 70px #000}.resultCard .big{font-size:54px;font-weight:1000;color:var(--yellow);line-height:1}.resultCard h3{font-size:27px;margin:4px 0}.resultCard p{font-size:12px;color:#cbbfce;line-height:1.4}.resultCard button{width:100%;border:0;border-radius:14px;padding:15px;background:var(--green);font-weight:1000}
+.end{align-items:center;justify-content:center;text-align:center}.endCard{width:100%;background:#15121a;border:2px solid #392e40;border-radius:25px;padding:27px 20px}.end img{width:190px;height:190px;object-fit:cover;border-radius:50%;border:5px solid var(--pink)}.end h2{font-size:38px;line-height:.95;margin:17px 0 7px}.end .finalScore{font-size:64px;font-weight:1000;color:var(--yellow)}
+</style>
+</head>
+<body>
+<div class="app">
+<section id="home" class="screen on">
+ <div class="hero"><img id="heroImg"><div class="brand"><div class="small">V9 VERTICAL SLICE</div><h1>LAURA <span>QUIZ</span></h1><p>Real memories. Actual game mechanics. No random decorative AI wallpaper.</p></div></div>
+ <button class="primary" id="startBtn">Play the slice</button>
+ <div class="note">5 curated questions + one proper Tap O'Clock pouring game.</div>
+</section>
+
+<section id="quiz" class="screen">
+ <div class="top"><span class="pill" id="qCount">1 / 5</span><div></div><span class="score" id="score">0</span></div>
+ <div class="progress"><i id="progress"></i></div>
+ <div class="scene"><img id="sceneImg"></div>
+ <div class="paper"><div class="cat" id="cat"></div><h2 id="question"></h2></div>
+ <div class="answers" id="answers"></div>
+ <div class="feedback" id="feedback"><strong id="feedbackTitle"></strong><p id="feedbackText"></p></div>
+ <button class="next" id="nextBtn">Next</button>
+</section>
+
+<section id="mini" class="screen">
+ <div class="miniHead"><div class="eyebrow">TAP O'CLOCK</div><h2>Pour Pressure</h2><p>Set the pressure, then hold the tap. Hit the green zone without serving Dad a pint of foam.</p></div>
+ <div class="pub">
+  <img class="pubArt" id="pubArt">
+  <div class="timer" id="timer">10.0</div>
+  <div class="tapRig"><div class="tapBody"></div><div class="nozzle"></div><div class="stream" id="stream"></div></div>
+  <div class="glassWrap">
+   <div class="glass"><div class="target"></div><div class="beer" id="beer"><div class="bubbles"></div></div><div class="foam" id="foam"></div></div>
+   <div class="targetLabel">PERFECT PINT</div>
+  </div>
+  <div class="hud">
+   <div class="meters">
+    <div class="meter"><label><span>BEER</span><span id="beerPct">0%</span></label><div class="bar"><i id="beerBar"></i></div></div>
+    <div class="meter"><label><span>FOAM</span><span id="foamPct">0%</span></label><div class="bar"><i id="foamBar"></i></div></div>
+   </div>
+   <div class="pressureRow"><input id="pressure" type="range" min="20" max="100" value="58"><button class="hold" id="holdBtn">HOLD</button></div>
+  </div>
+  <div class="miniResult" id="miniResult"><div class="resultCard"><div class="big" id="miniScore">0</div><h3 id="miniTitle">Result</h3><p id="miniText"></p><button id="miniContinue">Back to the quiz</button></div></div>
+ </div>
+</section>
+
+<section id="end" class="screen end">
+ <div class="endCard"><img id="endImg"><div class="small">VERTICAL SLICE COMPLETE</div><h2>This is now a game screen, not a moodboard.</h2><div class="finalScore" id="finalScore">0</div><p class="note">Next pass: replace remaining inherited art with approved cast masters and expand only after this interaction standard is locked.</p><button class="primary" id="again">Play again</button></div>
+</section>
+</div>
+<script>
+const A=window.V5_ASSETS||{}, B=window.V7_ASSETS||{}, BANK=window.V8_CURATED||[];
+const fallback=A.couple_art||B.home_art||A.laura||A.dad||"";
+const chosenIds=["v8u01","v8u08","v8t01","v8t03","v8m02"];
+const questions=chosenIds.map(id=>BANK.find(q=>q.id===id)).filter(Boolean);
+let qi=0, score=0, locked=false, miniDone=false;
+const $=id=>document.getElementById(id);
+$("heroImg").src=A.couple_art||B.home_art||fallback;
+$("endImg").src=A.couple_art||fallback;
+$("pubArt").src=A.dad||A.denise||B.cat_food||fallback;
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));$(id).classList.add("on")}
+function artFor(q){
+ if(q.scene==="fats") return A.fats_solo||B.cat_fats||fallback;
+ if(q.scene==="tap") return A.dad||A.denise||B.cat_food||fallback;
+ if(q.scene==="festival") return B.q_festival_scene||B.cat_travel||A.couple_art||fallback;
+ if(q.scene==="m6") return B.q_m6_scene||B.cat_travel||fallback;
+ return B.q_us_scene||A.couple_art||fallback;
+}
+function renderQuestion(){
+ const q=questions[qi]; locked=false;
+ $("qCount").textContent=(qi+1)+" / "+questions.length;
+ $("score").textContent=score;
+ $("progress").style.width=((qi/questions.length)*100)+"%";
+ $("sceneImg").src=artFor(q);
+ $("cat").textContent=q.cat;
+ $("question").textContent=q.q;
+ $("feedback").classList.remove("on"); $("nextBtn").classList.remove("on");
+ const box=$("answers"); box.innerHTML="";
+ q.o.forEach((label,i)=>{
+   const b=document.createElement("button"); b.className="answer"; b.textContent=label;
+   b.onclick=()=>answer(i,b,q); box.appendChild(b);
+ });
+}
+function answer(i,button,q){
+ if(locked)return; locked=true;
+ [...$("answers").children].forEach((b,n)=>b.classList.add(n===q.a?"good":n===i?"bad":""));
+ const ok=i===q.a; if(ok) score+=1000;
+ $("score").textContent=score;
+ $("feedbackTitle").textContent=ok?"YES.":"ABSOLUTELY NOT.";
+ $("feedbackText").textContent=q.r;
+ $("feedback").classList.add("on"); $("nextBtn").classList.add("on");
+}
+$("nextBtn").onclick=()=>{
+ if(qi===2&&!miniDone){show("mini");startPour();return}
+ qi++; if(qi>=questions.length){finish();return} renderQuestion();
+};
+$("startBtn").onclick=()=>{qi=0;score=0;miniDone=false;show("quiz");renderQuestion()};
+$("again").onclick=()=>show("home");
+function finish(){ $("finalScore").textContent=score.toLocaleString(); show("end") }
+
+let pouring=false, running=false, beer=0, foam=0, left=10, last=0, raf=0;
+function startPour(){
+ beer=0;foam=0;left=10;pouring=false;running=true;last=performance.now();
+ $("miniResult").classList.remove("on"); updatePourUI();
+ raf=requestAnimationFrame(tick);
+}
+function tick(t){
+ if(!running)return;
+ const dt=Math.min(.05,(t-last)/1000); last=t; left-=dt;
+ if(pouring&&left>0){
+  const p=+$("pressure").value/100;
+  const flow=.10+.22*p;
+  beer=Math.min(.98,beer+flow*dt);
+  const foamRate=Math.max(0,p-.54)*.12 + (beer>.82?p*.018:0);
+  foam=Math.min(.28,foam+foamRate*dt);
+  beer=Math.max(0,beer-foamRate*dt*.18);
+ }
+ foam=Math.max(0,foam-dt*.004);
+ updatePourUI();
+ if(left<=0||beer+foam>=.985){endPour();return}
+ raf=requestAnimationFrame(tick);
+}
+function updatePourUI(){
+ const p=+$("pressure").value/100;
+ $("timer").textContent=Math.max(0,left).toFixed(1);
+ $("beer").style.height=(beer*100)+"%";
+ $("foam").style.bottom=(beer*100)+"%"; $("foam").style.height=(foam*100)+"%";
+ $("beerPct").textContent=Math.round(beer*100)+"%"; $("foamPct").textContent=Math.round(foam*100)+"%";
+ $("beerBar").style.width=(beer*100)+"%"; $("foamBar").style.width=Math.min(100,foam*400)+"%";
+ $("stream").style.opacity=pouring?1:0; $("stream").style.height=pouring?"165px":"0";
+ $("stream").style.width=(4+p*9)+"px";
+}
+function press(on){
+ pouring=on&&running; $("holdBtn").classList.toggle("down",pouring); updatePourUI();
+}
+["pointerdown","touchstart"].forEach(e=>$("holdBtn").addEventListener(e,ev=>{ev.preventDefault();press(true)},{passive:false}));
+["pointerup","pointercancel","pointerleave","touchend"].forEach(e=>$("holdBtn").addEventListener(e,()=>press(false)));
+function endPour(){
+ running=false; pouring=false; cancelAnimationFrame(raf); updatePourUI();
+ const total=beer+foam, fillErr=Math.abs(total-.93), idealFoam=.10, foamErr=Math.abs(foam-idealFoam);
+ let pts=Math.max(0,Math.round(1500-(fillErr*5000)-(foamErr*3500)));
+ if(total<.78) pts=Math.min(pts,450);
+ score+=pts; miniDone=true;
+ $("miniScore").textContent=pts.toLocaleString();
+ $("miniTitle").textContent=pts>=1200?"PUB LANDLORD MATERIAL":pts>=750?"DECENT PINT":"DENISE HAS SEEN ENOUGH";
+ $("miniText").textContent="Beer "+Math.round(beer*100)+"% · Foam "+Math.round(foam*100)+"%. The sweet spot is a full pint with a controlled head, not a glass of beige bathwater.";
+ $("miniResult").classList.add("on");
+}
+$("miniContinue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+</script>
+</body></html>
