@@ -5,11 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09080d">
 <title>Penwortham After Dark — Rick & Laura</title>
-<script src="v5-assets.js">
-/* M6 survival microgame */
-$("m6Art").src=B.cat_travel||A.couple_fest||A.couple_art||fallback;let m6Running=false,m6Lane=1,m6LeftTime=10,m6Hits=0,m6Last=0,m6Spawn=0,m6Raf=0;function setM6Lane(n){m6Lane=Math.max(0,Math.min(2,n));$("m6Car").style.left=(16.67+m6Lane*33.33)+"%"}function spawnTraffic(){const car=document.createElement("div");car.className="trafficCar";const lane=Math.floor(Math.random()*3);car.dataset.lane=String(lane);car.dataset.y="-90";car.style.left=(16.67+lane*33.33)+"%";$("m6Road").appendChild(car)}function startM6(){[...$("m6Road").querySelectorAll(".trafficCar")].forEach(x=>x.remove());m6Running=true;m6Lane=1;m6LeftTime=10;m6Hits=0;m6Spawn=.25;m6Last=performance.now();setM6Lane(1);$("m6Result").classList.remove("on");$("m6Hits").textContent="0 HITS";m6Raf=requestAnimationFrame(m6Tick)}function m6Tick(t){if(!m6Running)return;const dt=Math.min(.05,(t-m6Last)/1000);m6Last=t;m6LeftTime-=dt;const elapsed=10-m6LeftTime;const interval=Math.max(.34,.82-elapsed*.045);m6Spawn-=dt;if(m6Spawn<=0){spawnTraffic();m6Spawn=interval}const roadH=$("m6Road").clientHeight;const carTop=roadH-160;const speed=155+elapsed*23;[...$("m6Road").querySelectorAll(".trafficCar")].forEach(car=>{let y=Number(car.dataset.y)+speed*dt;car.dataset.y=String(y);car.style.top=y+"px";const sameLane=Number(car.dataset.lane)===m6Lane;if(sameLane&&car.dataset.hit!=="1"&&y+72>carTop&&y<carTop+80){car.dataset.hit="1";m6Hits++;$("m6Hits").textContent=m6Hits+" HITS";$("m6Road").classList.remove("crash");void $("m6Road").offsetWidth;$("m6Road").classList.add("crash");car.remove();return}if(y>roadH+100)car.remove()});$("m6Time").textContent=Math.max(0,m6LeftTime).toFixed(1);if(m6LeftTime<=0){endM6();return}m6Raf=requestAnimationFrame(m6Tick)}function endM6(){m6Running=false;cancelAnimationFrame(m6Raf);const pts=Math.max(150,1500-m6Hits*350);score+=pts;m6Done=true;$("m6Score").textContent=pts.toLocaleString();$("m6Title").textContent=m6Hits===0?"M6 MIRACLE":m6Hits<=2?"STILL MOVING":"STANDARD M6 EXPERIENCE";$("m6Text").textContent=m6Hits===0?"No collisions. Frankly suspicious.":m6Hits+" collision"+(m6Hits===1?"":"s")+". At least you eventually got home.";$("m6Result").classList.add("on")}$("m6Left").onclick=()=>{if(m6Running)setM6Lane(m6Lane-1)};$("m6Right").onclick=()=>{if(m6Running)setM6Lane(m6Lane+1)};$("m6Continue").onclick=()=>{qi++;show("quiz");renderQuestion()};
-
-</script>
+<script src="v5-assets.js"></script>
 <script src="v7-assets.js"></script>
 <script src="v8-curated.js"></script>
 <style>
@@ -50,10 +46,10 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
 .glassWrap{position:absolute;left:50%;top:150px;transform:translateX(-50%);width:190px;height:310px;filter:drop-shadow(0 20px 16px #0009)}.glass{position:absolute;inset:0 14px 0;border:4px solid #ffffffb8;border-top-width:3px;border-radius:18px 18px 35px 35px;overflow:hidden;background:linear-gradient(90deg,#ffffff08,#ffffff20 45%,#ffffff05);clip-path:polygon(3% 0,97% 0,87% 100%,13% 100%)}
 .beer{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(90deg,#d88911,#ffc536 50%,#d8870c);transition:height .08s linear}.beer:before{content:"";position:absolute;left:-20%;top:-8px;width:140%;height:18px;border-radius:50%;background:#ffd14b;animation:wave 1s linear infinite}.foam{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#fffef5,#f2e7c0);transition:height .12s;box-shadow:0 -4px 10px #fff8}
 @keyframes wave{50%{transform:translateX(7px) scaleY(.7)}}.bubbles{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#fff9 0 1px,transparent 1.7px);background-size:17px 23px;opacity:.23;animation:rise 2s linear infinite}@keyframes rise{to{background-position:0 -46px}}
-.target{position:absolute;left:17px;right:17px;bottom:31px;height:42px;border-top:3px dashed #84ff93;border-bottom:3px dashed #84ff93;opacity:.9}.targetLabel{position:absolute;right:18px;bottom:78px;background:#0c1b10;border:1px solid #74e68a;border-radius:9px;padding:5px 7px;font-size:9px;font-weight:1000}
+.target{position:absolute;z-index:5;left:10px;right:10px;top:7%;height:9%;border-top:3px dashed #84ff93;border-bottom:3px dashed #84ff93;background:rgba(80,220,125,.08);opacity:1}.targetLabel{position:absolute;z-index:7;right:18px;top:4px;background:#0c1b10;border:1px solid #74e68a;border-radius:9px;padding:5px 7px;font-size:9px;font-weight:1000}
 .timer{position:absolute;top:14px;right:14px;border-radius:99px;background:#0b0910dd;border:2px solid white;padding:8px 11px;font-weight:1000;font-size:13px}.hud{position:absolute;left:16px;right:16px;bottom:16px;padding:13px;border-radius:18px;background:#0c0a10ea;border:1px solid #403547}
 .meters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}.meter label{display:flex;justify-content:space-between;font-size:9px;font-weight:900;color:#bfb5c2}.bar{margin-top:4px;height:9px;border-radius:99px;background:#251f29;overflow:hidden}.bar i{height:100%;display:block;width:0;background:linear-gradient(90deg,var(--yellow),#ff9a2c)}
-.pressureRow{display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center}.pressureRow input{width:100%;accent-color:var(--pink)}.hold{height:52px;border:0;border-radius:14px;background:var(--pink);font-weight:1000;color:#250012;box-shadow:0 6px 0 #8b1357;touch-action:none}.hold.down{transform:translateY(4px);box-shadow:0 2px 0 #8b1357}.miniResult{position:absolute;inset:0;background:#07060bdc;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.miniResult.on{display:flex}.resultCard{width:100%;border-radius:24px;background:#15121b;border:2px solid #413548;padding:24px;text-align:center;box-shadow:0 22px 70px #000}.resultCard .big{font-size:54px;font-weight:1000;color:var(--yellow);line-height:1}.resultCard h3{font-size:27px;margin:4px 0}.resultCard p{font-size:12px;color:#cbbfce;line-height:1.4}.resultCard button{width:100%;border:0;border-radius:14px;padding:15px;background:var(--green);font-weight:1000}
+.pressureRow{display:grid;grid-template-columns:1fr 128px;gap:10px;align-items:center}.pressureRow.single{grid-template-columns:1fr 138px}.pourInstruction{font-size:9px;line-height:1.25;font-weight:1000;color:#e8dfea;letter-spacing:.03em}.hold{height:52px;border:0;border-radius:14px;background:var(--pink);font-weight:1000;color:#250012;box-shadow:0 6px 0 #8b1357;touch-action:none}.hold.down{transform:translateY(4px);box-shadow:0 2px 0 #8b1357}.miniResult{position:absolute;inset:0;background:#07060bdc;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.miniResult.on{display:flex}.resultCard{width:100%;border-radius:24px;background:#15121b;border:2px solid #413548;padding:24px;text-align:center;box-shadow:0 22px 70px #000}.resultCard .big{font-size:54px;font-weight:1000;color:var(--yellow);line-height:1}.resultCard h3{font-size:27px;margin:4px 0}.resultCard p{font-size:12px;color:#cbbfce;line-height:1.4}.resultCard button{width:100%;border:0;border-radius:14px;padding:15px;background:var(--green);font-weight:1000}
 .end{align-items:center;justify-content:center;text-align:center}.endCard{width:100%;background:#15121a;border:2px solid #392e40;border-radius:25px;padding:27px 20px}.end img{width:190px;height:190px;object-fit:cover;border-radius:50%;border:5px solid var(--pink)}.end h2{font-size:38px;line-height:.95;margin:17px 0 7px}.end .finalScore{font-size:64px;font-weight:1000;color:var(--yellow)}
 
 /* Mobile game layout: portrait works, landscape is the intended full game view. */
@@ -185,21 +181,21 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
 </section>
 
 <section id="mini" class="screen">
- <div class="miniHead"><div class="eyebrow">TAP O'CLOCK</div><h2>Pour Pressure</h2><p>Set the pressure, then hold the tap. Hit the green zone without serving Dad a pint of foam.</p></div>
+ <div class="miniHead"><div class="eyebrow">TAP O'CLOCK</div><h2>Stop The Pour</h2><p>Hold POUR to fill the pint. Release when the beer reaches the green line. That's it.</p></div>
  <div class="pub">
   <img class="pubArt" id="pubArt">
   <div class="timer" id="timer">10.0</div>
   <div class="tapRig"><div class="tapBody"></div><div class="nozzle"></div><div class="stream" id="stream"></div></div>
   <div class="glassWrap">
    <div class="glass"><div class="target"></div><div class="beer" id="beer"><div class="bubbles"></div></div><div class="foam" id="foam"></div></div>
-   <div class="targetLabel">PERFECT PINT</div>
+   <div class="targetLabel">RELEASE HERE</div>
   </div>
   <div class="hud">
    <div class="meters">
     <div class="meter"><label><span>BEER</span><span id="beerPct">0%</span></label><div class="bar"><i id="beerBar"></i></div></div>
     <div class="meter"><label><span>FOAM</span><span id="foamPct">0%</span></label><div class="bar"><i id="foamBar"></i></div></div>
    </div>
-   <div class="pressureRow"><input id="pressure" type="range" min="20" max="100" value="58"><button class="hold" id="holdBtn">HOLD</button></div>
+   <div class="pressureRow single"><div class="pourInstruction">HOLD → WATCH THE LEVEL → RELEASE IN GREEN</div><button class="hold" id="holdBtn">HOLD TO POUR</button></div>
   </div>
   <div class="miniResult" id="miniResult"><div class="resultCard"><div class="big" id="miniScore">0</div><h3 id="miniTitle">Result</h3><p id="miniText"></p><button id="miniContinue">Back to the quiz</button></div></div>
  </div>
@@ -214,7 +210,7 @@ linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle 
 <script>
 const A=window.V5_ASSETS||{}, B=window.V7_ASSETS||{}, BANK=window.V8_CURATED||[];
 const fallback=A.couple_art||B.home_art||A.laura||A.dad||"";
-const chosenIds=["v8u01","v8u03","v8u05","v8u08","v8u10","v8m01","v8m03","v8t01","v8t03","v8t06","v8f01","v8r01"];
+const chosenIds=["v8u01","v8u03","v8u06","v8u08","v8u10","v8m01","v8m06","v8t01","v8t03","v8t06","v8f01","v8r01"];
 const questions=chosenIds.map(id=>BANK.find(q=>q.id===id)).filter(Boolean);
 let qi=0, score=0, locked=false, miniDone=false, m6Done=false;
 const $=id=>document.getElementById(id);
@@ -273,54 +269,136 @@ $("startBtn").onclick=()=>{qi=0;score=0;miniDone=false;m6Done=false;show("quiz")
 $("again").onclick=()=>show("home");
 function finish(){ $("finalScore").textContent=score.toLocaleString(); show("end") }
 
-let pouring=false, running=false, beer=0, foam=0, left=10, last=0, raf=0;
+let pouring=false, running=false, beer=0, foam=0, left=0, last=0, raf=0, pourStarted=false;
 function startPour(){
- beer=0;foam=0;left=10;pouring=false;running=true;last=performance.now();
- $("miniResult").classList.remove("on"); updatePourUI();
+ beer=0;foam=0;pouring=false;running=true;pourStarted=false;last=performance.now();
+ $("miniResult").classList.remove("on");
+ $("timer").textContent="READY";
+ $("holdBtn").textContent="HOLD TO POUR";
+ updatePourUI();
  raf=requestAnimationFrame(tick);
 }
 function tick(t){
  if(!running)return;
- const dt=Math.min(.05,(t-last)/1000); last=t; left-=dt;
- if(pouring&&left>0){
-  const p=+$("pressure").value/100;
-  const flow=.10+.22*p;
-  beer=Math.min(.98,beer+flow*dt);
-  const foamRate=Math.max(0,p-.54)*.12 + (beer>.82?p*.018:0);
-  foam=Math.min(.28,foam+foamRate*dt);
-  beer=Math.max(0,beer-foamRate*dt*.18);
+ const dt=Math.min(.05,(t-last)/1000); last=t;
+ if(pouring){
+   beer=Math.min(1.03,beer+dt*.235);
+   foam=Math.max(0,(beer-.885)*.55);
  }
- foam=Math.max(0,foam-dt*.004);
  updatePourUI();
- if(left<=0||beer+foam>=.985){endPour();return}
+ if(beer>=1.01){ endPour(true); return; }
  raf=requestAnimationFrame(tick);
 }
 function updatePourUI(){
- const p=+$("pressure").value/100;
- $("timer").textContent=Math.max(0,left).toFixed(1);
- $("beer").style.height=(beer*100)+"%";
- $("foam").style.bottom=(beer*100)+"%"; $("foam").style.height=(foam*100)+"%";
- $("beerPct").textContent=Math.round(beer*100)+"%"; $("foamPct").textContent=Math.round(foam*100)+"%";
- $("beerBar").style.width=(beer*100)+"%"; $("foamBar").style.width=Math.min(100,foam*400)+"%";
- $("stream").style.opacity=pouring?1:0; $("stream").style.height=pouring?"165px":"0";
- $("stream").style.width=(4+p*9)+"px";
+ $("beer").style.height=(Math.min(1,beer)*100)+"%";
+ $("foam").style.bottom=(Math.min(1,beer)*100)+"%";
+ $("foam").style.height=(Math.min(.09,foam)*100)+"%";
+ $("beerPct").textContent=Math.round(Math.min(1,beer)*100)+"%";
+ $("foamPct").textContent=Math.round(Math.min(.09,foam)*100)+"%";
+ $("beerBar").style.width=(Math.min(1,beer)*100)+"%";
+ $("foamBar").style.width=Math.min(100,foam*1000)+"%";
+ $("stream").style.opacity=pouring?1:0;
+ $("stream").style.height=pouring?"165px":"0";
+ $("stream").style.width="8px";
 }
-function press(on){
- pouring=on&&running; $("holdBtn").classList.toggle("down",pouring); updatePourUI();
+function beginPour(ev){
+ if(ev)ev.preventDefault();
+ if(!running||pourStarted)return;
+ pourStarted=true; pouring=true;
+ $("timer").textContent="POURING";
+ $("holdBtn").textContent="RELEASE AT THE LINE";
+ $("holdBtn").classList.add("down");
 }
-["pointerdown","touchstart"].forEach(e=>$("holdBtn").addEventListener(e,ev=>{ev.preventDefault();press(true)},{passive:false}));
-["pointerup","pointercancel","pointerleave","touchend"].forEach(e=>$("holdBtn").addEventListener(e,()=>press(false)));
-function endPour(){
+function releasePour(ev){
+ if(ev)ev.preventDefault();
+ if(!running||!pourStarted||!pouring)return;
+ pouring=false; $("holdBtn").classList.remove("down");
+ endPour(false);
+}
+$("holdBtn").addEventListener("pointerdown",beginPour);
+$("holdBtn").addEventListener("pointerup",releasePour);
+$("holdBtn").addEventListener("pointercancel",releasePour);
+$("holdBtn").addEventListener("pointerleave",e=>{if(pouring)releasePour(e)});
+function endPour(spilled=false){
+ if(!running)return;
  running=false; pouring=false; cancelAnimationFrame(raf); updatePourUI();
- const total=beer+foam, fillErr=Math.abs(total-.93), idealFoam=.10, foamErr=Math.abs(foam-idealFoam);
- let pts=Math.max(0,Math.round(1500-(fillErr*5000)-(foamErr*3500)));
- if(total<.78) pts=Math.min(pts,450);
+ const target=.91;
+ const err=Math.abs(beer-target);
+ let pts=Math.max(0,Math.round(1500-err*6500));
+ if(beer<.68)pts=Math.min(pts,250);
+ if(spilled||beer>=1)pts=Math.min(pts,150);
  score+=pts; miniDone=true;
  $("miniScore").textContent=pts.toLocaleString();
- $("miniTitle").textContent=pts>=1200?"PUB LANDLORD MATERIAL":pts>=750?"DECENT PINT":"DENISE HAS SEEN ENOUGH";
- $("miniText").textContent="Beer "+Math.round(beer*100)+"% · Foam "+Math.round(foam*100)+"%. The sweet spot is a full pint with a controlled head, not a glass of beige bathwater.";
+ $("miniTitle").textContent=spilled?"OVER THE TOP":pts>=1250?"BANG ON":pts>=750?"CLOSE ENOUGH":beer<target?"SHORT PINT":"BIT GENEROUS";
+ $("miniText").textContent="You served "+Math.round(Math.min(1.05,beer)*100)+"%. The green band is the only target: hold to pour, release when the surface reaches it.";
  $("miniResult").classList.add("on");
 }
 $("miniContinue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+
+/* M6 microgame — deliberately defined here, after the DOM, so mobile Safari actually runs it. */
+$("m6Art").src=B.cat_travel||A.couple_fest||A.couple_art||fallback;
+let m6Running=false,m6Lane=1,m6LeftTime=12,m6Hits=0,m6Last=0,m6Spawn=0,m6Raf=0,m6TouchX=null;
+function setM6Lane(n){
+ m6Lane=Math.max(0,Math.min(2,n));
+ $("m6Car").style.left=(16.67+m6Lane*33.33)+"%";
+}
+function spawnTraffic(){
+ const car=document.createElement("div");
+ car.className="trafficCar";
+ const lane=Math.floor(Math.random()*3);
+ car.dataset.lane=String(lane);car.dataset.y="-90";
+ car.style.left=(16.67+lane*33.33)+"%";
+ $("m6Road").appendChild(car);
+}
+function startM6(){
+ [...$("m6Road").querySelectorAll(".trafficCar")].forEach(x=>x.remove());
+ m6Running=true;m6Lane=1;m6LeftTime=12;m6Hits=0;m6Spawn=.6;m6Last=performance.now();
+ setM6Lane(1);$("m6Result").classList.remove("on");
+ $("m6Hits").textContent="0 HITS";$("m6Time").textContent="12.0";
+ cancelAnimationFrame(m6Raf);m6Raf=requestAnimationFrame(m6Tick);
+}
+function m6Tick(t){
+ if(!m6Running)return;
+ const dt=Math.min(.05,(t-m6Last)/1000);m6Last=t;m6LeftTime-=dt;
+ const elapsed=12-m6LeftTime;
+ m6Spawn-=dt;
+ const interval=Math.max(.52,.95-elapsed*.025);
+ if(m6Spawn<=0){spawnTraffic();m6Spawn=interval}
+ const roadH=$("m6Road").clientHeight;
+ const playerTop=roadH-160;
+ const speed=145+elapsed*12;
+ [...$("m6Road").querySelectorAll(".trafficCar")].forEach(car=>{
+   let y=Number(car.dataset.y)+speed*dt;
+   car.dataset.y=String(y);car.style.top=y+"px";
+   if(Number(car.dataset.lane)===m6Lane&&car.dataset.hit!=="1"&&y+72>playerTop&&y<playerTop+78){
+     car.dataset.hit="1";m6Hits++;$("m6Hits").textContent=m6Hits+" HITS";
+     $("m6Road").classList.remove("crash");void $("m6Road").offsetWidth;$("m6Road").classList.add("crash");
+     car.remove();return;
+   }
+   if(y>roadH+100)car.remove();
+ });
+ $("m6Time").textContent=Math.max(0,m6LeftTime).toFixed(1);
+ if(m6LeftTime<=0){endM6();return}
+ m6Raf=requestAnimationFrame(m6Tick);
+}
+function endM6(){
+ if(!m6Running)return;
+ m6Running=false;cancelAnimationFrame(m6Raf);
+ const pts=Math.max(150,1500-m6Hits*300);score+=pts;m6Done=true;
+ $("m6Score").textContent=pts.toLocaleString();
+ $("m6Title").textContent=m6Hits===0?"M6 MIRACLE":m6Hits<=2?"MADE IT HOME":"ABSOLUTE GRIDLOCK";
+ $("m6Text").textContent=m6Hits===0?"Clean run. Suspiciously competent.":m6Hits+" collision"+(m6Hits===1?"":"s")+". You still made it home.";
+ $("m6Result").classList.add("on");
+}
+$("m6Left").onclick=()=>{if(m6Running)setM6Lane(m6Lane-1)};
+$("m6Right").onclick=()=>{if(m6Running)setM6Lane(m6Lane+1)};
+$("m6Road").addEventListener("pointerdown",e=>{m6TouchX=e.clientX});
+$("m6Road").addEventListener("pointerup",e=>{
+ if(m6TouchX===null||!m6Running)return;
+ const dx=e.clientX-m6TouchX;m6TouchX=null;
+ if(Math.abs(dx)>24)setM6Lane(m6Lane+(dx>0?1:-1));
+});
+$("m6Continue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+
 </script>
 </body></html>
