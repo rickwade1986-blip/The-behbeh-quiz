@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<title>Penwortham After Dark — Rick & Laura</title>
+<script src="v5-assets.js"></script>
+<script src="v7-assets.js"></script>
+<script src="v8-curated.js"></script>
+<style>
+:root{
+ --bg:#08070c;--panel:#121017;--paper:#f7e9c5;--ink:#17110f;--pink:#ff3a98;--blue:#54c7ff;
+ --yellow:#ffd548;--green:#50dc7d;--purple:#9b5cff;--cream:#fff4db;--line:#342b3b;
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#030205;color:white;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,input{font:inherit}.app{width:min(100%,430px);min-height:100dvh;margin:auto;position:relative;overflow:hidden;background:
+radial-gradient(circle at 15% 0,rgba(255,58,152,.18),transparent 24rem),
+radial-gradient(circle at 95% 15%,rgba(84,199,255,.13),transparent 23rem),#08070c;
+padding:max(14px,env(safe-area-inset-top)) 14px max(22px,env(safe-area-inset-bottom))}
+.screen{display:none;min-height:calc(100dvh - 30px)}.screen.on{display:flex;flex-direction:column}
+.hero{position:relative;height:430px;border-radius:28px;overflow:hidden;border:2px solid #332c3a;background:#15111b;box-shadow:0 24px 70px #0009}
+.hero img{position:absolute;width:100%;height:100%;object-fit:cover;filter:saturate(1.07) contrast(1.03)}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.06) 30%,rgba(7,4,9,.2) 55%,rgba(7,4,9,.96) 92%)}
+.brand{position:absolute;z-index:2;left:17px;right:17px;bottom:20px;transform:rotate(-1deg)}
+.brand .small{font-weight:900;letter-spacing:.18em;font-size:11px;color:var(--blue)}
+.brand h1{margin:4px 0 6px;font-size:48px;line-height:.82;letter-spacing:-.05em;text-transform:uppercase;font-weight:1000;text-shadow:4px 4px 0 #000}
+.brand h1 span{color:var(--pink)}.brand p{margin:0;max-width:310px;font-weight:800;font-size:12px;color:#f7eaf2}
+.primary{margin-top:14px;border:0;border-radius:16px;padding:17px 18px;background:linear-gradient(135deg,var(--yellow),#ff9f36);font-weight:1000;text-transform:uppercase;box-shadow:0 10px 0 #6a4015;color:#1a1005}
+.note{text-align:center;color:#978d9d;font-size:11px;margin:18px 8px 0}
+.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-bottom:12px}
+.pill{border:1px solid #3b3142;background:#141119;border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900}
+.score{font-weight:1000;text-align:right}.progress{height:7px;background:#201a24;border-radius:99px;overflow:hidden;margin-bottom:13px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));width:0;transition:.3s}
+.scene{height:190px;border:2px solid #30283a;border-radius:22px;overflow:hidden;background:#15121a;box-shadow:0 17px 40px #0006}
+.scene img{width:100%;height:100%;object-fit:cover;display:block}.paper{position:relative;background:var(--paper);color:var(--ink);border-radius:10px;padding:19px 17px 20px;margin:13px 4px 17px;box-shadow:6px 7px 0 #6d4e28,0 16px 35px #0007;transform:rotate(-.3deg)}
+.paper:before{content:"";position:absolute;top:-8px;left:26px;width:54px;height:16px;background:#d9c38b;opacity:.9;transform:rotate(-6deg)}
+.cat{font-size:13px;font-weight:1000;color:#c81e73;text-transform:uppercase;letter-spacing:.06em}.paper h2{font-size:22px;line-height:1.15;margin:7px 0 0;letter-spacing:-.02em}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}.answer{min-height:78px;border:2px solid #332b3b;border-radius:15px;background:#15111a;color:white;padding:11px;text-align:left;font-weight:850;line-height:1.18;box-shadow:0 8px 18px #0005}
+.answer:active{transform:translateY(2px)}.answer.good{background:#123520;border-color:#58e88d}.answer.bad{background:#3d151f;border-color:#ff5e79}.feedback{display:none;margin-top:12px;border-radius:15px;padding:13px 14px;background:#14121a;border:2px solid #3c3342}.feedback.on{display:block}.feedback strong{font-size:22px;display:block}.feedback p{margin:5px 0 0;color:#d9d1dc;font-size:12px;line-height:1.4}
+.next{display:none;margin-top:10px;border:0;border-radius:14px;padding:15px;background:var(--pink);color:#240012;font-weight:1000}.next.on{display:block}
+.miniHead{text-align:center;margin:5px 0 12px}.miniHead .eyebrow{font-size:11px;color:var(--blue);font-weight:1000;letter-spacing:.13em}.miniHead h2{font-size:40px;line-height:.9;margin:5px 0 6px;text-transform:uppercase}.miniHead p{margin:0 auto;max-width:330px;font-size:12px;color:#c9bfcc}
+.pub{position:relative;flex:1;min-height:610px;border:2px solid #302839;border-radius:24px;overflow:hidden;background:
+linear-gradient(180deg,rgba(42,22,17,.2),rgba(6,5,8,.9)),radial-gradient(circle at 50% 15%,#754a24,#1a1011 48%,#08070b 80%);box-shadow:0 22px 60px #0009}
+.pubArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.26;filter:blur(.5px) saturate(.8)}
+.tapRig{position:absolute;left:20px;right:20px;top:25px;height:90px}.tapBody{position:absolute;left:calc(50% - 56px);top:0;width:112px;height:46px;border-radius:18px 18px 8px 8px;background:linear-gradient(#d7d0bf,#7c766d);box-shadow:inset 0 5px 8px #fff7,0 7px 16px #0006}.nozzle{position:absolute;left:calc(50% - 8px);top:38px;width:16px;height:55px;background:linear-gradient(90deg,#4f4b48,#b8b2aa,#4d4945);border-radius:4px}.stream{position:absolute;left:50%;top:90px;width:8px;height:0;background:linear-gradient(90deg,#f4d455,#fff2a6,#d49b24);transform:translateX(-50%);border-radius:8px;opacity:0;box-shadow:0 0 12px #ffc94caa;transition:width .08s}
+.glassWrap{position:absolute;left:50%;top:150px;transform:translateX(-50%);width:190px;height:310px;filter:drop-shadow(0 20px 16px #0009)}.glass{position:absolute;inset:0 14px 0;border:4px solid #ffffffb8;border-top-width:3px;border-radius:18px 18px 35px 35px;overflow:hidden;background:linear-gradient(90deg,#ffffff08,#ffffff20 45%,#ffffff05);clip-path:polygon(3% 0,97% 0,87% 100%,13% 100%)}
+.beer{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(90deg,#d88911,#ffc536 50%,#d8870c);transition:height .08s linear}.beer:before{content:"";position:absolute;left:-20%;top:-8px;width:140%;height:18px;border-radius:50%;background:#ffd14b;animation:wave 1s linear infinite}.foam{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#fffef5,#f2e7c0);transition:height .12s;box-shadow:0 -4px 10px #fff8}
+@keyframes wave{50%{transform:translateX(7px) scaleY(.7)}}.bubbles{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#fff9 0 1px,transparent 1.7px);background-size:17px 23px;opacity:.23;animation:rise 2s linear infinite}@keyframes rise{to{background-position:0 -46px}}
+.target{position:absolute;z-index:5;left:10px;right:10px;top:7%;height:9%;border-top:3px dashed #84ff93;border-bottom:3px dashed #84ff93;background:rgba(80,220,125,.08);opacity:1}.targetLabel{position:absolute;z-index:7;right:18px;top:4px;background:#0c1b10;border:1px solid #74e68a;border-radius:9px;padding:5px 7px;font-size:9px;font-weight:1000}
+.timer{position:absolute;top:14px;right:14px;border-radius:99px;background:#0b0910dd;border:2px solid white;padding:8px 11px;font-weight:1000;font-size:13px}.hud{position:absolute;left:16px;right:16px;bottom:16px;padding:13px;border-radius:18px;background:#0c0a10ea;border:1px solid #403547}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}.meter label{display:flex;justify-content:space-between;font-size:9px;font-weight:900;color:#bfb5c2}.bar{margin-top:4px;height:9px;border-radius:99px;background:#251f29;overflow:hidden}.bar i{height:100%;display:block;width:0;background:linear-gradient(90deg,var(--yellow),#ff9a2c)}
+.pressureRow{display:grid;grid-template-columns:1fr 128px;gap:10px;align-items:center}.pressureRow.single{grid-template-columns:1fr 138px}.pourInstruction{font-size:9px;line-height:1.25;font-weight:1000;color:#e8dfea;letter-spacing:.03em}.hold{height:52px;border:0;border-radius:14px;background:var(--pink);font-weight:1000;color:#250012;box-shadow:0 6px 0 #8b1357;touch-action:none}.hold.down{transform:translateY(4px);box-shadow:0 2px 0 #8b1357}.miniResult{position:absolute;inset:0;background:#07060bdc;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.miniResult.on{display:flex}.resultCard{width:100%;border-radius:24px;background:#15121b;border:2px solid #413548;padding:24px;text-align:center;box-shadow:0 22px 70px #000}.resultCard .big{font-size:54px;font-weight:1000;color:var(--yellow);line-height:1}.resultCard h3{font-size:27px;margin:4px 0}.resultCard p{font-size:12px;color:#cbbfce;line-height:1.4}.resultCard button{width:100%;border:0;border-radius:14px;padding:15px;background:var(--green);font-weight:1000}
+.end{align-items:center;justify-content:center;text-align:center}.endCard{width:100%;background:#15121a;border:2px solid #392e40;border-radius:25px;padding:27px 20px}.end img{width:190px;height:190px;object-fit:cover;border-radius:50%;border:5px solid var(--pink)}.end h2{font-size:38px;line-height:.95;margin:17px 0 7px}.end .finalScore{font-size:64px;font-weight:1000;color:var(--yellow)}
+
+/* Mobile game layout: portrait works, landscape is the intended full game view. */
+@media (orientation:landscape) and (max-height:600px){
+  html,body{height:100%;overflow:hidden}
+  .app{
+    width:100%;
+    max-width:1180px;
+    height:100dvh;
+    min-height:0;
+    padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+    overflow:hidden;
+  }
+  .screen{min-height:0;height:100%}
+  #home.on{
+    display:grid;
+    grid-template-columns:minmax(0,1.65fr) minmax(250px,.75fr);
+    grid-template-rows:1fr auto auto;
+    gap:10px 14px;
+    align-items:end;
+  }
+  #home .hero{grid-column:1;grid-row:1/4;height:100%;min-height:0}
+  #home .hero img{object-fit:contain;background:#100d13}
+  #home .primary{grid-column:2;grid-row:2;margin:0}
+  #home .note{grid-column:2;grid-row:3;margin:4px 6px 2px}
+
+  #quiz.on{
+    display:grid;
+    grid-template-columns:minmax(0,1.12fr) minmax(330px,.88fr);
+    grid-template-rows:auto 7px auto 1fr auto auto;
+    gap:7px 14px;
+    align-content:stretch;
+  }
+  #quiz .top{grid-column:1/-1;grid-row:1;margin:0}
+  #quiz .progress{grid-column:1/-1;grid-row:2;margin:0}
+  #quiz .scene{
+    grid-column:1;grid-row:3/7;
+    height:auto;min-height:0;border-radius:18px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #quiz .scene img{object-fit:contain;background:#100d13}
+  #quiz .paper{grid-column:2;grid-row:3;margin:0;padding:13px 14px 14px}
+  #quiz .paper h2{font-size:clamp(17px,3.2vh,22px)}
+  #quiz .cat{font-size:10px}
+  #quiz .answers{grid-column:2;grid-row:4;gap:7px;align-content:start}
+  #quiz .answer{min-height:48px;padding:8px 9px;font-size:12px}
+  #quiz .feedback{grid-column:2;grid-row:5;margin:0;padding:9px 11px}
+  #quiz .feedback strong{font-size:17px}
+  #quiz .feedback p{font-size:10px;margin-top:3px}
+  #quiz .next{grid-column:2;grid-row:6;margin:0;padding:10px}
+
+  #mini.on{
+    display:grid;
+    grid-template-columns:minmax(190px,.42fr) minmax(0,1.58fr);
+    gap:12px;
+    align-items:stretch;
+  }
+  #mini .miniHead{
+    margin:0;padding:14px 10px;
+    display:flex;flex-direction:column;justify-content:center;text-align:left;
+  }
+  #mini .miniHead h2{font-size:clamp(28px,8vh,42px)}
+  #mini .miniHead p{margin:0;max-width:none}
+  #mini .pub{min-height:0;height:100%;border-radius:18px}
+  #mini .pubArt{object-fit:contain;background:#100d13;opacity:.34}
+  #mini .tapRig{top:10px;transform:scale(.78);transform-origin:top center}
+  #mini .glassWrap{top:84px;width:132px;height:218px}
+  #mini .hud{left:12px;right:12px;bottom:10px;padding:9px}
+  #mini .hold{height:42px}
+  #mini .timer{top:10px;right:10px;padding:6px 9px}
+  #mini .targetLabel{right:8px;bottom:52px}
+  #mini .miniResult{padding:14px}
+  #mini .resultCard{max-width:520px;padding:16px}
+  #mini .resultCard .big{font-size:42px}
+
+  #end.on{padding:8px}
+  #end .endCard{
+    max-width:760px;margin:auto;
+    display:grid;
+    grid-template-columns:150px 1fr;
+    grid-template-rows:auto auto auto auto;
+    column-gap:22px;
+    align-items:center;text-align:left;padding:18px 22px;
+  }
+  #end img{grid-column:1;grid-row:1/5;width:140px;height:140px;margin:auto}
+  #end .small,#end h2,#end .finalScore,#end .note,#end .primary{grid-column:2}
+  #end h2{font-size:30px;margin:5px 0}
+  #end .finalScore{font-size:48px}
+  #end .note{text-align:left;margin:2px 0 4px}
+  #end .primary{margin-top:6px}
+}
+@media (orientation:portrait){
+  .hero img,.scene img{object-fit:contain;background:#100d13}
+}
+.stream{
+  background:linear-gradient(90deg,rgba(255,255,255,.16),#f4c334 18%,#ffe98a 48%,#d58b12 80%,rgba(255,255,255,.12));
+  box-shadow:0 0 10px #ffc94c88,0 0 22px #ffc94c55;
+  animation:pourWobble .18s ease-in-out infinite alternate;
+  transform-origin:top center;
+}
+@keyframes pourWobble{
+  from{transform:translateX(-50%) skewX(-1.4deg) scaleX(.88)}
+  to{transform:translateX(-50%) skewX(1.4deg) scaleX(1.08)}
+}
+
+
+/* M6 survival microgame */
+.roadGame{position:relative;flex:1;min-height:610px;border:2px solid #302839;border-radius:24px;overflow:hidden;background:#101116;box-shadow:0 22px 60px #0009}.roadArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;filter:saturate(.75) contrast(1.15)}.roadSurface{position:absolute;inset:0;background:linear-gradient(90deg,transparent 32.7%,rgba(255,255,255,.25) 32.9%,rgba(255,255,255,.25) 33.4%,transparent 33.6%,transparent 66%,rgba(255,255,255,.25) 66.2%,rgba(255,255,255,.25) 66.7%,transparent 66.9%),repeating-linear-gradient(180deg,#202228 0 38px,#181a1f 38px 76px)}.roadSurface:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#08090c 0 8%,transparent 8% 92%,#08090c 92% 100%);box-shadow:inset 0 0 55px #000}.m6Hud{position:absolute;z-index:6;left:12px;right:12px;top:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.m6Badge{background:#08090ddc;border:1px solid #6d6472;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:1000}.m6Car,.trafficCar{position:absolute;z-index:4;left:50%;transform:translateX(-50%);border-radius:14px 14px 10px 10px;border:2px solid #ffffff9c;box-shadow:0 8px 20px #0009}.m6Car{bottom:82px;width:54px;height:78px;background:linear-gradient(180deg,#ff3a98 0 62%,#94145a 62% 100%);transition:left .12s cubic-bezier(.2,.8,.2,1)}.m6Car:before,.trafficCar:before{content:"";position:absolute;left:8px;right:8px;top:9px;height:22px;border-radius:8px 8px 4px 4px;background:linear-gradient(#bfe7ff,#39546a)}.m6Car:after,.trafficCar:after{content:"";position:absolute;left:7px;right:7px;bottom:8px;height:9px;border-radius:99px;background:#141414;box-shadow:0 -33px 0 #141414}.trafficCar{top:-90px;width:50px;height:72px;background:linear-gradient(180deg,#ffd548 0 62%,#9d7611 62% 100%)}.m6Controls{position:absolute;z-index:8;left:12px;right:12px;bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.m6Controls button{height:54px;border:0;border-radius:15px;background:#111017e8;color:#fff;border:2px solid #6e6475;font-weight:1000;letter-spacing:.08em;touch-action:manipulation}.m6Controls button:active{transform:translateY(2px);background:#241a29}.roadGame.crash{animation:roadCrash .22s linear 1}@keyframes roadCrash{25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
+@media (orientation:landscape) and (max-height:600px){#m6game.on{display:grid;grid-template-columns:minmax(190px,.42fr) minmax(0,1.58fr);gap:12px;align-items:stretch}#m6game .miniHead{margin:0;padding:14px 10px;display:flex;flex-direction:column;justify-content:center;text-align:left}#m6game .miniHead h2{font-size:clamp(28px,8vh,42px)}#m6game .miniHead p{margin:0;max-width:none}#m6game .roadGame{min-height:0;height:100%;border-radius:18px}#m6game .m6Car{bottom:64px;width:44px;height:62px}#m6game .trafficCar{width:42px;height:58px}#m6game .m6Controls{bottom:8px}#m6game .m6Controls button{height:42px}}
+
+
+/* TWATTING ABOUT — one tactile, transcript-backed bonus round. */
+.twatStage{position:relative;flex:1;min-height:610px;border:2px solid #332a3b;border-radius:24px;overflow:hidden;background:
+ radial-gradient(circle at 18% 18%,rgba(255,213,72,.12),transparent 18rem),
+ linear-gradient(180deg,#2c2030 0 55%,#18131c 55% 100%);box-shadow:0 22px 60px #0009;touch-action:none;user-select:none}
+.twatStage:before{content:"";position:absolute;left:0;right:0;top:54%;height:10px;background:#624830;box-shadow:0 6px 0 #2b1d17,0 -160px 0 -5px rgba(255,255,255,.025)}
+.twatStage:after{content:"";position:absolute;left:18px;right:18px;top:88px;height:150px;border-radius:18px;background:
+ linear-gradient(90deg,rgba(255,255,255,.04),transparent 24%,rgba(255,255,255,.035) 24% 26%,transparent 26% 72%,rgba(255,255,255,.035) 72% 74%,transparent),
+ linear-gradient(#17121b,#100d13);border:1px solid #4a3a50;box-shadow:inset 0 0 30px #0009}
+.twatHud{position:absolute;z-index:12;left:12px;right:12px;top:10px;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+.twatBadge{background:#08090ddd;border:1px solid #76677c;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:1000;letter-spacing:.06em;box-shadow:0 6px 16px #0008}
+.twatBag{position:absolute;z-index:7;left:50%;bottom:18px;width:145px;height:105px;transform:translateX(-50%);border-radius:18px 18px 28px 28px;background:linear-gradient(145deg,#d4a15b,#9c6932);border:3px solid #efd09a;box-shadow:inset 0 -15px 25px #6a401c88,0 18px 28px #0009;display:grid;place-items:center;text-align:center;color:#241305;font-size:12px;font-weight:1000;letter-spacing:.08em}
+.twatBag:before,.twatBag:after{content:"";position:absolute;top:-28px;width:48px;height:42px;border:7px solid #d7a965;border-bottom:0;border-radius:28px 28px 0 0}
+.twatBag:before{left:18px}.twatBag:after{right:18px}.twatBag.hot{animation:bagPulse .22s ease 1}
+@keyframes bagPulse{50%{transform:translateX(-50%) scale(1.07)}}
+.twatItem{position:absolute;z-index:9;width:76px;height:76px;border:0;background:transparent;padding:0;filter:drop-shadow(0 8px 8px #0008);touch-action:none;cursor:grab;transition:filter .15s}
+.twatItem svg{width:100%;height:100%;overflow:visible}.twatItem.dragging{z-index:30;cursor:grabbing;filter:drop-shadow(0 15px 14px #000b) brightness(1.08)}.twatItem.packed{pointer-events:none;transition:left .28s cubic-bezier(.2,.9,.25,1.2),top .28s cubic-bezier(.2,.9,.25,1.2),transform .28s,opacity .28s;opacity:0;transform:scale(.35) rotate(25deg)!important}.twatItem.wrong{animation:wrongWobble .28s linear 1}@keyframes wrongWobble{25%{transform:translateX(-8px) rotate(-7deg)}50%{transform:translateX(7px) rotate(6deg)}75%{transform:translateX(-4px) rotate(-3deg)}}
+.twatFlash{position:absolute;z-index:40;inset:0;background:rgba(6,5,8,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;transition:opacity .25s}.twatFlash.hide{opacity:0;pointer-events:none}.twatFlash .remember{font-size:10px;font-weight:1000;letter-spacing:.16em;color:var(--blue);margin-bottom:12px}.chatBubble{position:relative;width:min(100%,330px);padding:18px 18px 16px;border-radius:18px 18px 6px 18px;background:#d9fdd3;color:#152214;text-align:left;box-shadow:0 16px 40px #0008;font-weight:750;line-height:1.5}.chatBubble b{font-weight:1000}.chatBubble small{display:block;margin-top:10px;color:#537052;font-weight:800}
+.twatToast{position:absolute;z-index:35;left:50%;top:58px;transform:translateX(-50%) translateY(-10px);opacity:0;pointer-events:none;background:#120d15ee;border:1px solid #685b70;border-radius:999px;padding:8px 12px;font-size:10px;font-weight:1000;white-space:nowrap;transition:.18s}.twatToast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.twatRoomLabel{position:absolute;z-index:4;left:18px;top:250px;color:#756b7a;font-size:9px;font-weight:1000;letter-spacing:.12em}
+@media (orientation:landscape) and (max-height:600px){
+ #twatgame.on{display:grid;grid-template-columns:minmax(190px,.42fr) minmax(0,1.58fr);gap:12px;align-items:stretch}
+ #twatgame .miniHead{margin:0;padding:14px 10px;display:flex;flex-direction:column;justify-content:center;text-align:left}
+ #twatgame .miniHead h2{font-size:clamp(28px,8vh,42px)}
+ #twatgame .miniHead p{margin:0;max-width:none}
+ #twatgame .twatStage{min-height:0;height:100%;border-radius:18px}
+ #twatgame .twatItem{width:62px;height:62px}
+ #twatgame .twatBag{width:120px;height:82px;bottom:10px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<section id="home" class="screen on">
+ <div class="hero"><img id="heroImg"><div class="brand"><div class="small">PENWORTHAM AFTER DARK</div><h1>LAURA <span>QUIZ</span></h1><p>Real memories. Actual game mechanics. No random decorative AI wallpaper.</p></div></div>
+ <button class="primary" id="startBtn">Start</button>
+ <div class="note">12 questions · 2 short bonus rounds · still a quiz first.</div>
+</section>
+
+<section id="quiz" class="screen">
+ <div class="top"><span class="pill" id="qCount">1 / 5</span><div></div><span class="score" id="score">0</span></div>
+ <div class="progress"><i id="progress"></i></div>
+ <div class="scene"><img id="sceneImg"></div>
+ <div class="paper"><div class="cat" id="cat"></div><h2 id="question"></h2></div>
+ <div class="answers" id="answers"></div>
+ <div class="feedback" id="feedback"><strong id="feedbackTitle"></strong><p id="feedbackText"></p></div>
+ <button class="next" id="nextBtn">Next</button>
+</section>
+
+<section id="mini" class="screen">
+ <div class="miniHead"><div class="eyebrow">TAP O'CLOCK</div><h2>Stop The Pour</h2><p>Hold POUR to fill the pint. Release when the beer reaches the green line. That's it.</p></div>
+ <div class="pub">
+  <img class="pubArt" id="pubArt">
+  <div class="timer" id="timer">10.0</div>
+  <div class="tapRig"><div class="tapBody"></div><div class="nozzle"></div><div class="stream" id="stream"></div></div>
+  <div class="glassWrap">
+   <div class="glass"><div class="target"></div><div class="beer" id="beer"><div class="bubbles"></div></div><div class="foam" id="foam"></div></div>
+   <div class="targetLabel">RELEASE HERE</div>
+  </div>
+  <div class="hud">
+   <div class="meters">
+    <div class="meter"><label><span>BEER</span><span id="beerPct">0%</span></label><div class="bar"><i id="beerBar"></i></div></div>
+    <div class="meter"><label><span>FOAM</span><span id="foamPct">0%</span></label><div class="bar"><i id="foamBar"></i></div></div>
+   </div>
+   <div class="pressureRow single"><div class="pourInstruction">HOLD → WATCH THE LEVEL → RELEASE IN GREEN</div><button class="hold" id="holdBtn">HOLD TO POUR</button></div>
+  </div>
+  <div class="miniResult" id="miniResult"><div class="resultCard"><div class="big" id="miniScore">0</div><h3 id="miniTitle">Result</h3><p id="miniText"></p><button id="miniContinue">Back to the quiz</button></div></div>
+ </div>
+</section>
+
+
+
+<section id="twatgame" class="screen">
+ <div class="miniHead">
+  <div class="eyebrow">BONUS MEMORY ROUND</div>
+  <h2>Twatting About</h2>
+  <p>Actual 3 September WhatsApp list. Memorise it, then drag the four real items into the tote. No word-buttons pretending to be a game.</p>
+ </div>
+ <div class="twatStage" id="twatStage">
+  <div class="twatHud"><div class="twatBadge"><span id="twatTime">15.0</span> MINNIE'S</div><div class="twatBadge" id="twatCount">0 / 4 PACKED</div></div>
+  <div class="twatRoomLabel">THE TWATTY ERRAND ZONE</div>
+  <div class="twatFlash" id="twatFlash">
+   <div class="remember">WHATSAPP FLASHBACK — REMEMBER THIS</div>
+   <div class="chatBubble"><b>We will need bags baybeh</b><br><br>Marigolds<br>Toilet roll<br>Wooden garden brush<br>… and a clean cup for water for my hydration batty clart needs<small>3 September 2026</small></div>
+  </div>
+  <div class="twatBag" id="twatBag">TWATTY<br>SHIT</div>
+  <div class="twatToast" id="twatToast"></div>
+  <div class="miniResult" id="twatResult"><div class="resultCard"><div class="big" id="twatScore">0</div><h3 id="twatTitle">Result</h3><p id="twatText"></p><button id="twatContinue">Back to the quiz</button></div></div>
+ </div>
+</section>
+
+<section id="m6game" class="screen"><div class="miniHead"><div class="eyebrow">M6 AFTER MIDNIGHT</div><h2>Get Home</h2><p>Ten seconds. Three lanes. The traffic gets faster. Try not to let the M6 become the third person in the relationship.</p></div><div class="roadGame" id="m6Road"><img class="roadArt" id="m6Art"><div class="roadSurface"></div><div class="m6Hud"><div class="m6Badge" id="m6Time">10.0</div><div class="m6Badge" id="m6Hits">0 HITS</div></div><div class="m6Car" id="m6Car"></div><div class="m6Controls"><button id="m6Left">LEFT</button><button id="m6Right">RIGHT</button></div><div class="miniResult" id="m6Result"><div class="resultCard"><div class="big" id="m6Score">0</div><h3 id="m6Title">Result</h3><p id="m6Text"></p><button id="m6Continue">Back to the quiz</button></div></div></div></section>
+<section id="end" class="screen end">
+ <div class="endCard"><img id="endImg"><div class="small">ROUND COMPLETE</div><h2>You survived Penwortham.</h2><div class="finalScore" id="finalScore">0</div><p class="note">The quiz stays the main event. Bonus rounds just interrupt the dignity.</p><button class="primary" id="again">Play again</button></div>
+</section>
+</div>
+<script>
+const A=window.V5_ASSETS||{}, B=window.V7_ASSETS||{}, BANK=window.V8_CURATED||[];
+const fallback=A.couple_art||B.home_art||A.laura||A.dad||"";
+const chosenIds=["v8u01","v8u03","v8u06","v8u08","v8u10","v8m01","v8m06","v8t01","v8t03","v8t06","v8f01","v8r01"];
+const questions=chosenIds.map(id=>BANK.find(q=>q.id===id)).filter(Boolean);
+let qi=0, score=0, locked=false, miniDone=false, m6Done=false, twatDone=false;
+const $=id=>document.getElementById(id);
+$("heroImg").src=A.couple_art||B.home_art||fallback;
+$("endImg").src=A.couple_art||fallback;
+$("pubArt").src=A.dad||A.denise||B.cat_food||fallback;
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));$(id).classList.add("on")}
+function artFor(q){
+ if(q.scene==="fats") return A.fats_solo||A.fats||B.cat_fats||fallback;
+ if(q.scene==="tap") return A.dad||A.denise||B.cat_food||fallback;
+ if(q.scene==="festival"||q.scene==="m6") return B.cat_travel||A.couple_fest||fallback;
+ if(q.cat==="MUSIC") return B.cat_music||A.couple_art||fallback;
+ if(q.cat==="FOOD + DRINK") return B.cat_food||A.couple_art||fallback;
+ if(q.cat==="TRAVEL") return B.cat_travel||A.couple_fest||fallback;
+ if(q.cat==="WEIRD SHIT") return B.cat_random||B.cat_animals||fallback;
+ if(q.cat==="HISTORY") return B.cat_history||B.cat_random||fallback;
+ if(q.cat==="ANIMALS") return B.cat_animals||fallback;
+ return B.q_us_scene||A.couple_art||A.couple_real||fallback;
+}
+function renderQuestion(){
+ const q=questions[qi]; locked=false;
+ $("qCount").textContent=(qi+1)+" / "+questions.length;
+ $("score").textContent=score;
+ $("progress").style.width=((qi/questions.length)*100)+"%";
+ $("sceneImg").src=artFor(q);
+ $("cat").textContent=q.cat;
+ $("question").textContent=q.q;
+ $("feedback").classList.remove("on"); $("nextBtn").classList.remove("on");
+ const box=$("answers"); box.innerHTML="";
+ const choices=q.o.map((label,i)=>({label,correct:i===q.a})).sort(()=>Math.random()-.5);
+ choices.forEach(choice=>{
+   const b=document.createElement("button"); b.className="answer"; b.textContent=choice.label;
+   b.dataset.correct=choice.correct?"1":"0";
+   b.onclick=()=>answer(b,q); box.appendChild(b);
+ });
+}
+function answer(button,q){
+ if(locked)return; locked=true;
+ const ok=button.dataset.correct==="1";
+ [...$("answers").children].forEach(b=>{
+   if(b.dataset.correct==="1") b.classList.add("good");
+   else if(b===button&&!ok) b.classList.add("bad");
+ });
+ if(ok) score+=1000;
+ $("score").textContent=score;
+ $("feedbackTitle").textContent=ok?"YES.":"ABSOLUTELY NOT.";
+ $("feedbackText").textContent=q.r;
+ $("feedback").classList.add("on"); $("nextBtn").classList.add("on");
+}
+$("nextBtn").onclick=()=>{
+ if(qi===2&&!miniDone){show("mini");startPour();return}
+ if(qi===6&&!twatDone){show("twatgame");startTwat();return}
+ qi++; if(qi>=questions.length){finish();return} renderQuestion();
+};
+$("startBtn").onclick=()=>{qi=0;score=0;miniDone=false;m6Done=false;twatDone=false;show("quiz");renderQuestion()};
+$("again").onclick=()=>show("home");
+function finish(){ $("finalScore").textContent=score.toLocaleString(); show("end") }
+
+let pouring=false, running=false, beer=0, foam=0, left=0, last=0, raf=0, pourStarted=false;
+function startPour(){
+ beer=0;foam=0;pouring=false;running=true;pourStarted=false;last=performance.now();
+ $("miniResult").classList.remove("on");
+ $("timer").textContent="READY";
+ $("holdBtn").textContent="HOLD TO POUR";
+ updatePourUI();
+ raf=requestAnimationFrame(tick);
+}
+function tick(t){
+ if(!running)return;
+ const dt=Math.min(.05,(t-last)/1000); last=t;
+ if(pouring){
+   beer=Math.min(1.03,beer+dt*.235);
+   foam=Math.max(0,(beer-.885)*.55);
+ }
+ updatePourUI();
+ if(beer>=1.01){ endPour(true); return; }
+ raf=requestAnimationFrame(tick);
+}
+function updatePourUI(){
+ $("beer").style.height=(Math.min(1,beer)*100)+"%";
+ $("foam").style.bottom=(Math.min(1,beer)*100)+"%";
+ $("foam").style.height=(Math.min(.09,foam)*100)+"%";
+ $("beerPct").textContent=Math.round(Math.min(1,beer)*100)+"%";
+ $("foamPct").textContent=Math.round(Math.min(.09,foam)*100)+"%";
+ $("beerBar").style.width=(Math.min(1,beer)*100)+"%";
+ $("foamBar").style.width=Math.min(100,foam*1000)+"%";
+ $("stream").style.opacity=pouring?1:0;
+ $("stream").style.height=pouring?"165px":"0";
+ $("stream").style.width="8px";
+}
+function beginPour(ev){
+ if(ev)ev.preventDefault();
+ if(!running||pourStarted)return;
+ pourStarted=true; pouring=true;
+ $("timer").textContent="POURING";
+ $("holdBtn").textContent="RELEASE AT THE LINE";
+ $("holdBtn").classList.add("down");
+}
+function releasePour(ev){
+ if(ev)ev.preventDefault();
+ if(!running||!pourStarted||!pouring)return;
+ pouring=false; $("holdBtn").classList.remove("down");
+ endPour(false);
+}
+$("holdBtn").addEventListener("pointerdown",beginPour);
+$("holdBtn").addEventListener("pointerup",releasePour);
+$("holdBtn").addEventListener("pointercancel",releasePour);
+$("holdBtn").addEventListener("pointerleave",e=>{if(pouring)releasePour(e)});
+function endPour(spilled=false){
+ if(!running)return;
+ running=false; pouring=false; cancelAnimationFrame(raf); updatePourUI();
+ const target=.91;
+ const err=Math.abs(beer-target);
+ let pts=Math.max(0,Math.round(1500-err*6500));
+ if(beer<.68)pts=Math.min(pts,250);
+ if(spilled||beer>=1)pts=Math.min(pts,150);
+ score+=pts; miniDone=true;
+ $("miniScore").textContent=pts.toLocaleString();
+ $("miniTitle").textContent=spilled?"OVER THE TOP":pts>=1250?"BANG ON":pts>=750?"CLOSE ENOUGH":beer<target?"SHORT PINT":"BIT GENEROUS";
+ $("miniText").textContent="You served "+Math.round(Math.min(1.05,beer)*100)+"%. The green band is the only target: hold to pour, release when the surface reaches it.";
+ $("miniResult").classList.add("on");
+}
+
+$("miniContinue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+
+/* TWATTING ABOUT
+   Source: 3 Sep 2026 WhatsApp list:
+   Marigolds / toilet roll / wooden garden brush / clean cup.
+   Nearby decoys are also real transcript items, but NOT from that list. */
+const TWAT_THINGS=[
+ {id:"marigolds",label:"Marigolds",ok:true,x:8,y:31,r:-11,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M30 78c-8-3-12-12-9-21l8-25c2-5 8-6 11-2l4 8 3-20c1-5 8-5 9 0l1 19 5-18c1-5 8-4 8 1l-1 19 6-14c2-5 9-2 8 3l-6 29c-2 10-8 18-18 22z" fill="#ffd548" stroke="#5d4300" stroke-width="4"/><path d="M21 75l38 4-4 15-39-7z" fill="#54c7ff" stroke="#16364a" stroke-width="4"/></svg>`},
+ {id:"roll",label:"Toilet roll",ok:true,x:72,y:29,r:9,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="49" cy="34" rx="27" ry="15" fill="#fff" stroke="#bbb" stroke-width="4"/><path d="M22 34v39c0 9 54 9 54 0V34" fill="#f8f7f3" stroke="#bbb" stroke-width="4"/><ellipse cx="49" cy="34" rx="10" ry="6" fill="#bda98c"/><path d="M76 47h12v36H62v-9h14z" fill="#fff" stroke="#bbb" stroke-width="3"/></svg>`},
+ {id:"brush",label:"Wooden garden brush",ok:true,x:10,y:58,r:8,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="47" y="4" width="9" height="69" rx="4" fill="#b87a3c" stroke="#5a351c" stroke-width="3" transform="rotate(7 51 38)"/><path d="M22 69h61l-7 17H28z" fill="#9b5cff" stroke="#3b1c68" stroke-width="4"/><path d="M29 86v9M39 86v9M50 86v9M61 86v9M72 86v9" stroke="#d5b9ff" stroke-width="4" stroke-linecap="round"/></svg>`},
+ {id:"cup",label:"Clean cup",ok:true,x:74,y:56,r:-8,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M23 24h50v48c0 14-50 14-50 0z" fill="#54c7ff" stroke="#14394f" stroke-width="4"/><path d="M73 36h12c15 0 15 25 0 25H73" fill="none" stroke="#14394f" stroke-width="6"/><path d="M31 37h34" stroke="#d9f4ff" stroke-width="4" stroke-linecap="round"/></svg>`},
+ {id:"milk",label:"Milk",ok:false,x:40,y:31,r:5,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M28 25h42l9 13v50H21V38z" fill="#f8f8f2" stroke="#68727b" stroke-width="4"/><path d="M28 25l11-12h25l6 12z" fill="#54c7ff" stroke="#25475b" stroke-width="4"/><path d="M37 50h27v20H37z" fill="#54c7ff"/><path d="M41 60c7-10 13 10 20 0" fill="none" stroke="#fff" stroke-width="3"/></svg>`},
+ {id:"bacon",label:"Bacon and eggs",ok:false,x:43,y:56,r:-5,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="13" y="24" width="74" height="55" rx="10" fill="#f0c7cf" stroke="#6c3943" stroke-width="4"/><path d="M22 38c14-11 18 11 32 0s18 11 25 0M22 55c14-11 18 11 32 0s18 11 25 0M22 69c14-11 18 11 32 0s18 11 25 0" fill="none" stroke="#d94d68" stroke-width="7" stroke-linecap="round"/></svg>`},
+ {id:"rizla",label:"Green Rizla",ok:false,x:25,y:44,r:12,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="12" y="28" width="76" height="44" rx="8" fill="#2fbb63" stroke="#0c4d28" stroke-width="4"/><path d="M24 48h52" stroke="#eaffef" stroke-width="7"/><path d="M31 59h38" stroke="#d7ffe0" stroke-width="4"/></svg>`},
+ {id:"lucozade",label:"Lucozade",ok:false,x:58,y:43,r:-12,svg:`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M40 10h20v13l8 10v51c0 9-36 9-36 0V33l8-10z" fill="#ff9f36" stroke="#6b3412" stroke-width="4"/><path d="M39 9h22v10H39z" fill="#30343a"/><path d="M36 48h28v22H36z" fill="#ffd548" stroke="#6b3412" stroke-width="3"/></svg>`}
+];
+let twatRunning=false,twatLeft=15,twatFound=0,twatWrong=0,twatRaf=0,twatLast=0,twatFlashTimer=0,twatToastTimer=0;
+function twatSound(freq=440,dur=.06){
+ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=twatSound.ctx||(twatSound.ctx=new C());const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=freq;g.gain.setValueAtTime(.055,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur)}catch(e){}
+}
+function twatToast(msg){
+ clearTimeout(twatToastTimer);$("twatToast").textContent=msg;$("twatToast").classList.add("on");
+ twatToastTimer=setTimeout(()=>$("twatToast").classList.remove("on"),850);
+}
+function buildTwatItems(){
+ $("twatStage").querySelectorAll(".twatItem").forEach(x=>x.remove());
+ TWAT_THINGS.forEach(t=>{
+   const el=document.createElement("button");
+   el.className="twatItem";el.type="button";el.dataset.id=t.id;el.dataset.ok=t.ok?"1":"0";
+   el.setAttribute("aria-label",t.label);el.innerHTML=t.svg;
+   el.style.left=t.x+"%";el.style.top=t.y+"%";el.style.transform="translate(-50%,-50%) rotate("+t.r+"deg)";
+   el.dataset.homeLeft=el.style.left;el.dataset.homeTop=el.style.top;el.dataset.homeTransform=el.style.transform;
+   wireTwatDrag(el);$("twatStage").appendChild(el);
+ });
+}
+function wireTwatDrag(el){
+ let pointer=null,offX=0,offY=0;
+ el.addEventListener("pointerdown",e=>{
+   if(!twatRunning)return;e.preventDefault();pointer=e.pointerId;el.setPointerCapture(pointer);
+   const r=el.getBoundingClientRect();offX=e.clientX-r.left;offY=e.clientY-r.top;el.classList.add("dragging");
+ });
+ el.addEventListener("pointermove",e=>{
+   if(pointer!==e.pointerId||!twatRunning)return;e.preventDefault();
+   const sr=$("twatStage").getBoundingClientRect();
+   el.style.left=(e.clientX-sr.left-offX)+"px";el.style.top=(e.clientY-sr.top-offY)+"px";el.style.transform="rotate(0deg)";
+ });
+ const drop=e=>{
+   if(pointer!==e.pointerId)return;pointer=null;el.classList.remove("dragging");
+   if(!twatRunning){resetTwatItem(el);return}
+   const ir=el.getBoundingClientRect(),br=$("twatBag").getBoundingClientRect();
+   const cx=ir.left+ir.width/2,cy=ir.top+ir.height/2;
+   const inBag=cx>br.left-8&&cx<br.right+8&&cy>br.top-12&&cy<br.bottom+8;
+   if(!inBag){resetTwatItem(el);return}
+   if(el.dataset.ok==="1"){
+     twatFound++;$("twatCount").textContent=twatFound+" / 4 PACKED";
+     $("twatBag").classList.remove("hot");void $("twatBag").offsetWidth;$("twatBag").classList.add("hot");
+     twatSound(620,.08);if(navigator.vibrate)navigator.vibrate(18);
+     const sr=$("twatStage").getBoundingClientRect();
+     el.style.left=(br.left-sr.left+br.width/2-ir.width/2)+"px";
+     el.style.top=(br.top-sr.top+br.height/2-ir.height/2)+"px";el.classList.add("packed");
+     twatToast(el.getAttribute("aria-label")+" ✓");
+     if(twatFound===4)setTimeout(()=>endTwat(true),280);
+   }else{
+     twatWrong++;twatSound(150,.11);if(navigator.vibrate)navigator.vibrate([20,35,20]);
+     el.classList.add("wrong");twatToast("NOPE — not on that list");
+     setTimeout(()=>{el.classList.remove("wrong");resetTwatItem(el)},290);
+   }
+ };
+ el.addEventListener("pointerup",drop);el.addEventListener("pointercancel",drop);
+}
+function resetTwatItem(el){
+ el.style.left=el.dataset.homeLeft;el.style.top=el.dataset.homeTop;el.style.transform=el.dataset.homeTransform;
+}
+function startTwat(){
+ twatRunning=false;twatLeft=15;twatFound=0;twatWrong=0;
+ cancelAnimationFrame(twatRaf);clearTimeout(twatFlashTimer);
+ $("twatResult").classList.remove("on");$("twatFlash").classList.remove("hide");
+ $("twatTime").textContent="15.0";$("twatCount").textContent="0 / 4 PACKED";
+ buildTwatItems();
+ $("twatStage").querySelectorAll(".twatItem").forEach(x=>x.style.visibility="hidden");
+ twatFlashTimer=setTimeout(()=>{
+   $("twatFlash").classList.add("hide");
+   $("twatStage").querySelectorAll(".twatItem").forEach(x=>x.style.visibility="visible");
+   twatRunning=true;twatLast=performance.now();twatRaf=requestAnimationFrame(twatTick);
+ },2600);
+}
+function twatTick(t){
+ if(!twatRunning)return;const dt=Math.min(.05,(t-twatLast)/1000);twatLast=t;twatLeft-=dt;
+ $("twatTime").textContent=Math.max(0,twatLeft).toFixed(1);
+ if(twatLeft<=0){endTwat(false);return}
+ twatRaf=requestAnimationFrame(twatTick);
+}
+function endTwat(perfect){
+ if(!twatRunning&&twatDone)return;
+ twatRunning=false;cancelAnimationFrame(twatRaf);clearTimeout(twatFlashTimer);
+ const base=twatFound*250;
+ const timeBonus=perfect?Math.round(Math.max(0,twatLeft)*30):0;
+ const penalty=twatWrong*75;
+ const pts=Math.max(0,base+timeBonus-penalty);
+ score+=pts;twatDone=true;
+ $("twatScore").textContent=pts.toLocaleString();
+ $("twatTitle").textContent=perfect?(twatWrong===0?"TWATTY PERFECTION":"ERRANDS COMPLETE"):"MINNIE'S UP";
+ $("twatText").textContent=perfect
+  ?"Marigolds. Toilet roll. Wooden garden brush. Clean cup. You were listening. The cream cleaning sink tub remains emotionally significant."
+  :"You packed "+twatFound+" of 4. The actual list was marigolds, toilet roll, wooden garden brush and a clean cup.";
+ $("twatResult").classList.add("on");
+}
+$("twatContinue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+
+
+/* M6 microgame — deliberately defined here, after the DOM, so mobile Safari actually runs it. */
+$("m6Art").src=B.cat_travel||A.couple_fest||A.couple_art||fallback;
+let m6Running=false,m6Lane=1,m6LeftTime=12,m6Hits=0,m6Last=0,m6Spawn=0,m6Raf=0,m6TouchX=null;
+function setM6Lane(n){
+ m6Lane=Math.max(0,Math.min(2,n));
+ $("m6Car").style.left=(16.67+m6Lane*33.33)+"%";
+}
+function spawnTraffic(){
+ const car=document.createElement("div");
+ car.className="trafficCar";
+ const lane=Math.floor(Math.random()*3);
+ car.dataset.lane=String(lane);car.dataset.y="-90";
+ car.style.left=(16.67+lane*33.33)+"%";
+ $("m6Road").appendChild(car);
+}
+function startM6(){
+ [...$("m6Road").querySelectorAll(".trafficCar")].forEach(x=>x.remove());
+ m6Running=true;m6Lane=1;m6LeftTime=12;m6Hits=0;m6Spawn=.6;m6Last=performance.now();
+ setM6Lane(1);$("m6Result").classList.remove("on");
+ $("m6Hits").textContent="0 HITS";$("m6Time").textContent="12.0";
+ cancelAnimationFrame(m6Raf);m6Raf=requestAnimationFrame(m6Tick);
+}
+function m6Tick(t){
+ if(!m6Running)return;
+ const dt=Math.min(.05,(t-m6Last)/1000);m6Last=t;m6LeftTime-=dt;
+ const elapsed=12-m6LeftTime;
+ m6Spawn-=dt;
+ const interval=Math.max(.52,.95-elapsed*.025);
+ if(m6Spawn<=0){spawnTraffic();m6Spawn=interval}
+ const roadH=$("m6Road").clientHeight;
+ const playerTop=roadH-160;
+ const speed=145+elapsed*12;
+ [...$("m6Road").querySelectorAll(".trafficCar")].forEach(car=>{
+   let y=Number(car.dataset.y)+speed*dt;
+   car.dataset.y=String(y);car.style.top=y+"px";
+   if(Number(car.dataset.lane)===m6Lane&&car.dataset.hit!=="1"&&y+72>playerTop&&y<playerTop+78){
+     car.dataset.hit="1";m6Hits++;$("m6Hits").textContent=m6Hits+" HITS";
+     $("m6Road").classList.remove("crash");void $("m6Road").offsetWidth;$("m6Road").classList.add("crash");
+     car.remove();return;
+   }
+   if(y>roadH+100)car.remove();
+ });
+ $("m6Time").textContent=Math.max(0,m6LeftTime).toFixed(1);
+ if(m6LeftTime<=0){endM6();return}
+ m6Raf=requestAnimationFrame(m6Tick);
+}
+function endM6(){
+ if(!m6Running)return;
+ m6Running=false;cancelAnimationFrame(m6Raf);
+ const pts=Math.max(150,1500-m6Hits*300);score+=pts;m6Done=true;
+ $("m6Score").textContent=pts.toLocaleString();
+ $("m6Title").textContent=m6Hits===0?"M6 MIRACLE":m6Hits<=2?"MADE IT HOME":"ABSOLUTE GRIDLOCK";
+ $("m6Text").textContent=m6Hits===0?"Clean run. Suspiciously competent.":m6Hits+" collision"+(m6Hits===1?"":"s")+". You still made it home.";
+ $("m6Result").classList.add("on");
+}
+$("m6Left").onclick=()=>{if(m6Running)setM6Lane(m6Lane-1)};
+$("m6Right").onclick=()=>{if(m6Running)setM6Lane(m6Lane+1)};
+$("m6Road").addEventListener("pointerdown",e=>{m6TouchX=e.clientX});
+$("m6Road").addEventListener("pointerup",e=>{
+ if(m6TouchX===null||!m6Running)return;
+ const dx=e.clientX-m6TouchX;m6TouchX=null;
+ if(Math.abs(dx)>24)setM6Lane(m6Lane+(dx>0?1:-1));
+});
+$("m6Continue").onclick=()=>{qi++;show("quiz");renderQuestion()};
+
+</script>
+</body></html>
