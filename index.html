@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d0911">
 <title>Rick & Laura — Behbeh Quiz</title>
-<script src="v10-bank.js"></script>
+<script src="v11-bank.js"></script>
 <style>
 :root{
  --bg:#0c0910;--panel:#15101a;--panel2:#1d1523;--ink:#18110d;--paper:#f4dfad;
@@ -142,6 +142,45 @@ button{-webkit-tap-highlight-color:transparent}
  #quiz .feedback{grid-column:2;grid-row:5;margin:0}
  #quiz .next{grid-column:2;grid-row:6;margin:0}
 }
+
+/* V11 round structure + richer quiz states */
+.roundScreen{justify-content:center}
+.roundCard{position:relative;overflow:hidden;border:1px solid #45384e;border-radius:30px;padding:34px 24px 26px;background:
+ radial-gradient(circle at 82% 10%,rgba(255,62,156,.20),transparent 14rem),
+ radial-gradient(circle at 12% 90%,rgba(87,200,255,.14),transparent 14rem),
+ #151019;box-shadow:0 28px 80px #000b}
+.roundNo{font-size:11px;letter-spacing:.22em;font-weight:1000;color:var(--blue)}
+.roundCard h2{font-size:52px;line-height:.88;letter-spacing:-.055em;margin:12px 0 12px;text-transform:uppercase;text-shadow:4px 5px 0 #000}
+.roundCard p{margin:0 0 24px;color:#cfc4d2;line-height:1.5;font-size:13px;font-weight:750;max-width:330px}
+.roundBits{height:150px;position:relative;margin:4px -4px 26px;border-radius:22px;border:1px solid #372c3f;background:#0f0b13;overflow:hidden}
+.roundBits .rb{position:absolute;padding:9px 11px;border-radius:10px;background:#f4dfad;color:#20150f;font-size:10px;font-weight:1000;box-shadow:5px 7px 0 #0008}
+.roundBits .rb:nth-child(1){left:16px;top:18px;transform:rotate(-6deg)}
+.roundBits .rb:nth-child(2){right:18px;top:23px;transform:rotate(7deg);background:#d9fdd3}
+.roundBits .rb:nth-child(3){left:42px;bottom:20px;transform:rotate(4deg);background:#aeeaff}
+.roundBits .orb{position:absolute;right:82px;bottom:-40px;width:115px;height:115px;border-radius:50%;border:18px solid #ff3e9c33;box-shadow:0 0 0 12px #57c8ff18}
+.roundGo{width:100%;border:0;border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--yellow),#ff9f36);font-weight:1000;color:#211305;box-shadow:0 8px 0 #6a4015}
+.roundGo:active{transform:translateY(3px);box-shadow:0 5px 0 #6a4015}
+
+.streak{justify-self:center;color:#ffdc62;font-size:10px;font-weight:1000;letter-spacing:.08em;opacity:.42;transition:.2s}
+.streak.hot{opacity:1;transform:scale(1.04)}
+.answer{position:relative;overflow:hidden}
+.answer.good:after,.answer.bad:after{position:absolute;right:9px;top:8px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:1000}
+.answer.good:after{content:"✓";background:#5ee690;color:#082512}
+.answer.bad:after{content:"×";background:#ff6680;color:#3b0711}
+.feedback{animation:feedbackIn .22s ease both}
+@keyframes feedbackIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.appCard{position:absolute;right:24px;top:18px;width:165px;height:100px;border-radius:18px;background:linear-gradient(155deg,#ff5aa7,#8c54ff);box-shadow:0 12px 30px #0009;padding:13px;color:white;transform:rotate(3deg)}
+.appCard .faces{display:flex;gap:6px;margin-bottom:9px}.appCard .face{width:27px;height:27px;border-radius:50%;background:#fff4;border:2px solid #fff7}.appCard b{display:block;font-size:12px}.appCard small{font-size:8px;font-weight:900;letter-spacing:.08em}
+.lieCard{position:absolute;right:20px;top:22px;width:165px;height:90px;background:#efe2bd;color:#26180f;border-radius:8px;transform:rotate(-3deg);box-shadow:0 12px 28px #0009;padding:14px;font-size:10px;font-weight:1000}
+.lieCard:after{content:"BULLSHIT?";position:absolute;right:9px;bottom:9px;border:4px solid #c52645;color:#c52645;padding:3px 6px;font-size:13px;transform:rotate(-8deg)}
+.keysArt{position:absolute;right:35px;top:24px;width:120px;height:95px}
+.keyRing{position:absolute;left:42px;top:4px;width:38px;height:38px;border:7px solid #ffd54a;border-radius:50%}
+.keyRing:after{content:"";position:absolute;left:12px;top:26px;width:9px;height:60px;background:#d2bd75;border-radius:5px;transform:rotate(18deg);box-shadow:24px 3px 0 #b6a055,-22px 6px 0 #ead58a}
+.keyRing:before{content:"";position:absolute;left:5px;top:70px;width:28px;height:12px;background:#d2bd75;clip-path:polygon(0 0,100% 0,100% 45%,70% 45%,70% 100%,48% 100%,48% 45%,0 45%)}
+.listCard{position:absolute;right:20px;top:18px;width:168px;height:102px;background:#f4dfad;color:#271a12;border-radius:8px;transform:rotate(2deg);box-shadow:0 12px 30px #0009;padding:13px 13px 10px}
+.listCard b{display:block;font-size:11px;margin-bottom:6px}.listCard span{display:block;font-size:9px;font-weight:900;line-height:1.65}.listCard span:before{content:"□";margin-right:6px;color:#c91b73}
+
 </style>
 </head>
 <body>
@@ -158,15 +197,26 @@ button{-webkit-tap-highlight-color:transparent}
   <div class="coverTitle">
    <div class="kicker">RICK + LAURA</div>
    <h1>BEHBEH<br><span>QUIZ</span></h1>
-   <p>25 transcript-backed questions. Weird memories, actual callbacks, no giant badly-cropped filler photos.</p>
+   <p>Five rounds. Twenty-five memories. Increasingly unreasonable levels of Behbeh knowledge.</p>
   </div>
   <button class="start" id="startBtn">Start the quiz</button>
  </div>
- <div class="homeNote">Pure quiz build for now. Bonus games are benched until they earn their place.</div>
+ <div class="homeNote">Built from the actual Laura chat · 4 June → 1 October</div>
+</section>
+
+
+<section id="round" class="screen roundScreen">
+ <div class="roundCard">
+  <div class="roundNo" id="roundNo">ROUND 1 OF 5</div>
+  <h2 id="roundTitle">THE FIRST 72 HOURS</h2>
+  <p id="roundSub">First date, bad sleep and immediate music obsession.</p>
+  <div class="roundBits"><div class="rb" id="roundBit1">4 JUNE</div><div class="rb" id="roundBit2">WHATSAPP</div><div class="rb" id="roundBit3">NO NORMALITY</div><div class="orb"></div></div>
+  <button class="roundGo" id="roundGo">Start round</button>
+ </div>
 </section>
 
 <section id="quiz" class="screen">
- <div class="top"><span class="badge" id="qCount">1 / 25</span><div></div><span class="score" id="score">0</span></div>
+ <div class="top"><span class="badge" id="qCount">1 / 25</span><span class="streak" id="streak">STREAK 0</span><span class="score" id="score">0</span></div>
  <div class="progress"><i id="progress"></i></div>
  <div class="memoryScene" id="memoryScene"></div>
  <div class="qCard"><div class="qType" id="qType"></div><h2 id="question"></h2></div>
@@ -187,10 +237,24 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 
 <script>
-const BANK=window.V10_BANK||[];
-let qi=0,score=0,locked=false;
+const BANK=window.V11_BANK||[];
+const ROUNDS=[
+ {title:"THE FIRST 72 HOURS",sub:"First date, bad sleep and immediate music obsession.",bits:["4 JUNE","WHATSAPP","RABBIT HOLES"]},
+ {title:"THE CAST EXPANDS",sub:"Dad. Fats. The Tap. Absolutely nobody providing useful context.",bits:["DAD’S BOOT","FATS FILES","THE TAP"]},
+ {title:"LANGUAGE HAS COLLAPSED",sub:"Minnie’s, baby cakes and a transport network built entirely from twats.",bits:["43 MINNIE’S","BABY CAKES","BEHBEH POLICY"]},
+ {title:"DOMESTIC ARCHAEOLOGY",sub:"Keys, sentimental sink tubs and increasingly experimental rent payments.",bits:["KEY THEFT","SINK TUB","RENT FROGS"]},
+ {title:"DEEP CUTS ONLY",sub:"No warm-up now. This is where casual observers get exposed.",bits:["KENDAL","MODGE + FLOM","BULLSHIT DETECTOR"]}
+];
+let qi=0,score=0,locked=false,streak=0,correct=0;
 const $=id=>document.getElementById(id);
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));$(id).classList.add("on")}
+function showRound(i){
+ const r=ROUNDS[i];$("roundNo").textContent="ROUND "+(i+1)+" OF "+ROUNDS.length;
+ $("roundTitle").textContent=r.title;$("roundSub").textContent=r.sub;
+ $("roundBit1").textContent=r.bits[0];$("roundBit2").textContent=r.bits[1];$("roundBit3").textContent=r.bits[2];
+ $("roundGo").textContent=i===0?"Start round":"Continue";
+ show("round");
+}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function sceneHTML(q){
  const v=q.v||{},k=v.kind||"quote",label=esc(v.label||q.cat),sub=esc(v.sub||"");
@@ -219,7 +283,7 @@ function render(){
  $("score").textContent=score.toLocaleString();
  $("progress").style.width=((qi/BANK.length)*100)+"%";
  $("memoryScene").innerHTML=sceneHTML(q);
- $("qType").textContent=q.type+" · "+q.cat;
+ $("qType").textContent="ROUND "+q.round+" · "+q.type+" · "+q.cat;
  $("question").textContent=q.q;
  $("feedback").classList.remove("on");$("nextBtn").classList.remove("on");
  const choices=shuffle(q.o.map((label,i)=>({label,correct:i===q.a})));
@@ -232,8 +296,9 @@ function render(){
 function answer(button,q){
  if(locked)return;locked=true;const ok=button.dataset.correct==="1";
  [...$("answers").children].forEach(b=>{if(b.dataset.correct==="1")b.classList.add("good");else if(b===button&&!ok)b.classList.add("bad")});
- if(ok)score+=1000;$("score").textContent=score.toLocaleString();
- $("feedbackTitle").textContent=ok?"YES.":"NOPE.";
+ if(ok){correct++;streak++;score+=1000+Math.min(300,Math.max(0,streak-1)*100)}else{streak=0}
+ $("score").textContent=score.toLocaleString();$("streak").textContent="STREAK "+streak;$("streak").classList.toggle("hot",streak>=2);
+ $("feedbackTitle").textContent=ok?(streak>=4?"ON FIRE.":"YES."):"NOPE.";
  $("sourceDate").textContent=q.date+" · LAURA TRANSCRIPT";
  $("feedbackText").textContent=q.r;
  $("feedback").classList.add("on");$("nextBtn").classList.add("on");
@@ -243,7 +308,7 @@ $("startBtn").onclick=()=>{qi=0;score=0;show("quiz");render()};
 $("again").onclick=()=>show("home");
 function finish(){
  $("progress").style.width="100%";$("finalScore").textContent=score.toLocaleString();
- const correct=Math.round(score/1000),pct=Math.round((correct/BANK.length)*100);
+ const pct=Math.round((correct/BANK.length)*100);
  $("endCopy").textContent=correct+" / "+BANK.length+" right · "+pct+"%. This build is deliberately quiz-first: the transcript and the questions do the work.";
  show("end");
 }
