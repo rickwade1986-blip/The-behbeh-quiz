@@ -65,7 +65,7 @@ function stageFrame(q,content){
  return '<div class="stageTop"><span class="fileLabel">EXHIBIT '+String(state.qi+1).padStart(2,'0')+'</span><span class="fileDate">'+escapeHtml(q.date)+'</span></div>'+content;
 }
 function chatHTML(q){
- return '<div class="chatStage">'+snippets(q).map(([who,line]) => '').join('')+
+ return '<div class="chatStage">'+
  snippets(q).map(({who,text})=>{
   const cls=who==='Rick'?' out':who==='Mystery'?' mystery':'';
   return '<div class="bubble'+cls+'"><span class="sender">'+escapeHtml(who)+'</span>'+escapeLines(text)+'</div>';
@@ -244,7 +244,7 @@ function init(){
  refreshHome();
  if(BANK.length!==30){
    console.error('Unexpected question count',BANK.length);
-   $('coverTitle').textContent='Question bank unavailable. Please refresh.';
+   document.querySelector('.coverTitle p').textContent='Question bank unavailable. Please refresh.';
  }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
