@@ -4,6 +4,30 @@
 const BANK = Array.isArray(window.BEHBEH_QUESTIONS) ? window.BEHBEH_QUESTIONS : [];
 const A = window.V5_ASSETS || {};
 const KEY = 'behbeh-files-progress-v1';
+const CROP_WINDOWS={
+  couple_real:[0,.215,1,.59],
+  couple_fest:[0,.33,1,.46],
+  dad:[0,.05,1,.71],
+  fats_solo:[0,.01,1,.95]
+};
+const cropCache={};
+function cropAsset(key,done){
+ const original=A[key]||'';
+ if(!original){done('');return}
+ if(cropCache[key]){done(cropCache[key]);return}
+ if(typeof Image==='undefined'){done(original);return}
+ const img=new Image();
+ img.onload=()=>{
+  try{
+   const c=document.createElement('canvas'),box=CROP_WINDOWS[key]||[0,0,1,1],w=img.naturalWidth,h=img.naturalHeight;
+   c.width=Math.max(1,Math.round(w*box[2]));c.height=Math.max(1,Math.round(h*box[3]));
+   c.getContext('2d').drawImage(img,w*box[0],h*box[1],w*box[2],h*box[3],0,0,c.width,c.height);
+   cropCache[key]=c.toDataURL('image/jpeg',.9);done(cropCache[key]);
+  }catch(e){done(original)}
+ };
+ img.onerror=()=>done(original);img.src=original;
+}
+
 const ACTS = [
  {first:'BEFORE THE', second:'BEHBEH', desc:'A first drink, 2am music and several immediate warning signs that normality was over.', motifs:['4 JUNE','A PINT OF WHAT?','THE RABBIT HOLE']},
  {first:'THE SUPPORTING',second:'CAST',desc:'A dad with inexplicable produce, Fats-based incidents and festival meeting arrangements.',motifs:['DAD','FATS','KENDAL']},
@@ -72,10 +96,10 @@ function chatHTML(q){
  }).join('')+'</div>';
 }
 function imageFor(kind){
- if(kind==='dad')return A.dad||A.couple_real||'';
- if(kind==='fats')return A.fats_solo||A.fats||A.couple_real||'';
- if(kind==='festival')return A.couple_fest||A.couple_real||'';
- return A.couple_real||A.couple_fest||'';
+ if(kind==='dad')return ['dad',A.dad||A.couple_real||''];
+ if(kind==='fats')return ['fats_solo',A.fats_solo||A.fats||A.couple_real||''];
+ if(kind==='festival')return ['couple_fest',A.couple_fest||A.couple_real||''];
+ return ['couple_real',A.couple_real||A.couple_fest||''];
 }
 function renderStage(q){
  let html='';
@@ -84,13 +108,13 @@ function renderStage(q){
  case 'chat':
    html=chat; break;
  case 'polaroid':{
-   const src=imageFor(q.photo);
+   const [key,src]=imageFor(q.photo);
    const title=q.photo==='dad'?'DAD. NO CONTEXT.':q.photo==='fats'?'THE FATS FILES':'MEET AT THE FESTIVAL';
-   html='<div class="photoBg">'+(src?'<img src="'+src+'" alt="Photo from the Rick and Laura archive">':'')+'</div><div class="photoBig">'+escapeHtml(title)+'<mark>ONE VERY SPECIFIC MEMORY.</mark></div>';break;
+   html='<div class="photoBg">'+(src?'<img data-crop="'+key+'" src="'+src+'" alt="Photo from the Rick and Laura archive">':'')+'</div><div class="photoBig">'+escapeHtml(title)+'<mark>ONE VERY SPECIFIC MEMORY.</mark></div>';break;
  }
  case 'festival':{
-   const src=imageFor('festival');
-   html='<div class="festivalBg">'+(src?'<img src="'+src+'" alt="Rick and Laura at a festival">':'')+'</div><div class="festivalTitle">KENDAL:<br>INCIDENT REPORT<br><span style="font-size:16px;color:#ffe486">STATUS: DISASTER PENDING</span></div>';break;
+   const [key,src]=imageFor('festival');
+   html='<div class="festivalBg">'+(src?'<img data-crop="'+key+'" src="'+src+'" alt="Rick and Laura at a festival">':'')+'</div><div class="festivalTitle">KENDAL:<br>INCIDENT REPORT<br><span style="font-size:16px;color:#ffe486">STATUS: DISASTER PENDING</span></div>';break;
  }
  case 'vinyl':
    html='<div class="vinylStage"><div class="record"></div><div class="musicType"><small>NOW PLAYING</small>THE 1AM<br>RABBIT<br>HOLE</div></div>';break;
@@ -126,6 +150,11 @@ function renderStage(q){
    html=chat;
  }
  $('stage').innerHTML=stageFrame(q,html)+'<div class="stageBottom">'+escapeHtml(q.tag)+'</div>';
+ const photo=$('stage').querySelector('img[data-crop]');
+ if(photo){
+   const key=photo.dataset.crop;const shownId=q.id;
+   cropAsset(key,cropped=>{if(current()?.id===shownId&&photo.isConnected&&cropped)photo.src=cropped});
+ }
 }
 function render(){
  const q=current();if(!q){finish();return}
@@ -228,6 +257,7 @@ function finish(){
 }
 function init(){
  $('coverImage').src=A.couple_real||A.couple_fest||'';
+ cropAsset('couple_real',src=>{if(src)$('coverImage').src=src});
  $('startBtn').onclick=()=>{if(loadSave())resumeRun();else newRun()};
  $('newBtn').onclick=()=>{clearSave();newRun()};
  $('actGo').onclick=render;
