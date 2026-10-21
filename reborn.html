@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090710">
+<meta name="description" content="The Behbeh Files: a very personal, very questionable Rick and Laura quiz.">
+<title>The Behbeh Files · Rick + Laura</title>
+<link rel="stylesheet" href="reborn.css?v=1">
+<script src="v5-assets.js"></script>
+<script src="reborn-questions.js?v=1"></script>
+<script src="reborn-app.js?v=1" defer></script>
+</head>
+<body>
+<main id="app">
+<section id="home" class="screen home active" aria-label="Home">
+ <div class="cover">
+  <div class="coverPhoto"><img id="coverImage" alt="Rick and Laura together" /></div>
+  <div class="coverScan"></div>
+  <div class="coverTop"><span class="eyebrow">RICK + LAURA / PERSONAL ARCHIVE</span><span>CLASSIFIED*<br>*NOT REALLY</span></div>
+  <div class="coverSticker">EVIDENCE<br>OF NONSENSE</div>
+  <div class="coverTitle">
+   <p class="slogan">A deeply questionable love story</p>
+   <h1>THE<br><em>BEHBEH</em><br>FILES</h1>
+   <p>Thirty genuine moments. Five increasingly unhinged chapters. How well do you remember the chaos?</p>
+  </div>
+  <div class="coverBottom">
+   <div class="coverFacts"><div><b>30</b>Real moments</div><div><b>05</b>Chapters</div><div><b>0</b>Shit minigames</div></div>
+   <button class="btn yellow" id="startBtn" type="button">OPEN THE FILE <span aria-hidden="true">→</span></button>
+   <small>Based on your WhatsApp history · all questions sourced</small>
+  </div>
+ </div>
+ <button class="homelink" id="newBtn" type="button" hidden>Start a fresh game instead</button>
+</section>
+
+<section id="act" class="screen act" aria-label="Chapter introduction">
+ <div class="actCard" id="actCard" data-number="01">
+  <div class="actCounter" id="actCounter">CHAPTER 01 / 05</div>
+  <h2 id="actTitle">BEFORE THE <span>BEHBEH</span></h2>
+  <p id="actText">The first drinks, the first messages, the first signs that nothing normal was about to happen.</p>
+  <div class="actMotifs" id="actMotifs"><span>4 JUNE</span><span>FIRST PINT</span><span>RABBIT HOLE</span></div>
+  <button class="btn yellow" id="actGo" type="button">LET'S SEE THE EVIDENCE →</button>
+  <div class="actFoot" id="actFoot">Six questions in this chapter</div>
+ </div>
+</section>
+
+<section id="quiz" class="screen" aria-label="Quiz question">
+ <div class="qTop">
+  <button class="exit" id="exitBtn" aria-label="Return to home" type="button">←</button>
+  <div class="caseIndex" id="caseIndex">FILE 001 / 030 <small id="caseCategory">ORIGIN STORY</small></div>
+  <div class="scoreBlock"><b id="score">0</b><small id="streak">0 STREAK</small></div>
+ </div>
+ <div class="progress" aria-label="Progress"><span id="progressFill"></span></div>
+ <div class="stage" id="stage" aria-label="Question evidence"></div>
+ <div class="prompt"><div class="qType" id="qType">EXHIBIT A · FIRST IMPRESSIONS</div><h2 id="promptText">Question loading</h2></div>
+ <div class="hintText" id="hintText">Select your answer</div>
+ <div class="options" id="options"></div>
+ <button class="submit" id="submitBtn" type="button" hidden disabled>CHECK EVIDENCE</button>
+ <div class="answerPanel" id="answerPanel" aria-live="polite">
+  <div class="headline" id="answerHead">YES.</div>
+  <p id="answerExplain"></p>
+  <div class="source" id="answerSource"></div>
+  <button class="btn" id="nextBtn" type="button">NEXT CASE →</button>
+ </div>
+ <div class="footerHint">THE BEHBEH FILES · ALL INCIDENTS ARE REAL UNLESS LABELLED BULLSHIT</div>
+</section>
+
+<section id="results" class="screen results" aria-label="Results">
+ <div class="resultCard">
+  <div class="eyebrow">THE FINAL REPORT</div>
+  <div class="giant" id="finalCount">0/30</div>
+  <h2 id="finalTitle">THE JURY HAS DECIDED.</h2>
+  <p id="finalCopy">You've survived the archive.</p>
+  <div class="resultStats"><span id="finalPoints">0 PTS</span><span id="finalStreak">BEST STREAK: 0</span></div>
+  <button class="btn yellow" id="againBtn" type="button">PLAY IT AGAIN →</button>
+ </div>
+</section>
+</main>
+</body>
+</html>
